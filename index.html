@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+<title>E-Book Catur Masterclass</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f12;
+  --surface: #13161b;
+  --surface2: #1a1e25;
+  --border: #252932;
+  --gold: #c9a84c;
+  --gold2: #e8c96a;
+  --blue: #4a90d9;
+  --text: #e8e4dc;
+  --muted: #7a8090;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;}
+
+/* ── SIDEBAR ── */
+nav{position:fixed;left:0;top:0;bottom:0;width:250px;background:var(--surface);border-right:1px solid var(--border);padding:0;z-index:200;overflow-y:auto;display:flex;flex-direction:column;}
+.nav-logo{padding:28px 24px 22px;border-bottom:1px solid var(--border);}
+.nav-logo span{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;}
+.nav-logo small{color:var(--muted);font-size:10px;letter-spacing:2px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 24px;color:var(--muted);text-decoration:none;font-size:12.5px;font-weight:500;transition:all .2s;border-left:3px solid transparent;cursor:pointer;}
+.nav-item:hover,.nav-item.active{color:var(--text);background:rgba(201,168,76,.07);border-left-color:var(--gold);}
+.nav-item .num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);min-width:18px;}
+
+/* ── STICKY CATEGORY TABS ── */
+.sticky-cats{position:sticky;top:0;z-index:100;background:rgba(13,15,18,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 60px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
+.sticky-cats::-webkit-scrollbar{display:none;}
+.cat-tab{flex-shrink:0;padding:14px 20px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;letter-spacing:.3px;}
+.cat-tab:hover{color:var(--text);}
+.cat-tab.active{color:var(--gold2);border-bottom-color:var(--gold);}
+
+/* ── MAIN ── */
+main{margin-left:250px;min-height:100vh;}
+
+/* ── HERO ── */
+.hero{position:relative;padding:80px 60px 70px;border-bottom:1px solid var(--border);overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 65% 70% at 80% 50%,rgba(201,168,76,.09) 0%,transparent 70%);}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:100px;padding:6px 16px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:28px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(38px,5vw,64px);font-weight:900;line-height:1.05;max-width:660px;}
+.hero h1 em{font-style:italic;background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-sub{margin-top:18px;color:var(--muted);font-size:15px;max-width:480px;}
+.hero-stats{display:flex;gap:36px;margin-top:44px;flex-wrap:wrap;}
+.stat-item strong{display:block;font-family:'Playfair Display',serif;font-size:32px;color:var(--gold);}
+.stat-item span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+
+/* ── CHESS DECO ── */
+.chess-deco{position:absolute;right:60px;top:50%;transform:translateY(-50%);display:grid;grid-template-columns:repeat(8,34px);grid-template-rows:repeat(8,34px);gap:0;opacity:.1;}
+.chess-deco div{background:var(--gold);}
+.chess-deco div.dark{background:transparent;}
+
+/* ── SECTIONS ── */
+section{padding:70px 60px;border-bottom:1px solid var(--border);}
+.section-header{display:flex;align-items:flex-end;gap:18px;margin-bottom:44px;}
+.section-num{font-family:'Playfair Display',serif;font-size:64px;font-weight:900;color:rgba(201,168,76,.1);line-height:1;margin-bottom:-6px;}
+.section-title h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;}
+.section-title p{color:var(--muted);font-size:13px;margin-top:3px;}
+
+/* ── CAT LABEL ── */
+.cat-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:22px;display:flex;align-items:center;gap:12px;}
+.cat-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── TIMELINE ── */
+.timeline{position:relative;padding-left:32px;display:flex;flex-direction:column;gap:0;}
+.timeline::before{content:'';position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:linear-gradient(to bottom,var(--gold),transparent);}
+.tl-item{position:relative;padding:0 0 36px 24px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-dot{position:absolute;left:-28px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--gold);border:2px solid var(--bg);box-shadow:0 0 0 3px rgba(201,168,76,.2);}
+.tl-year{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:6px;letter-spacing:1px;}
+.tl-item h4{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:6px;}
+.tl-item p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* ── INFO GRID ── */
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;transition:all .25s;}
+.info-card:hover{border-color:rgba(201,168,76,.25);transform:translateY(-2px);}
+.info-card .ic-icon{font-size:26px;margin-bottom:12px;}
+.info-card h4{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:6px;color:var(--gold2);}
+.info-card p{font-size:12.5px;color:var(--muted);line-height:1.5;}
+
+/* ── PIECE GRID ── */
+.piece-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.piece-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .25s;position:relative;overflow:hidden;}
+.piece-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0;transition:.25s;}
+.piece-card:hover{border-color:rgba(201,168,76,.3);transform:translateY(-2px);}
+.piece-card:hover::before{opacity:1;}
+.piece-symbol{font-size:36px;margin-bottom:10px;}
+.piece-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:3px;}
+.piece-value{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:8px;}
+.piece-desc{font-size:12.5px;color:var(--muted);line-height:1.5;}
+.piece-moves{margin-top:10px;padding:8px 12px;background:rgba(74,144,217,.07);border-left:2px solid var(--blue);border-radius:0 6px 6px 0;font-size:11.5px;color:#8eb8e8;}
+
+/* ── RULE CARDS ── */
+.rule-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+.rule-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:26px;}
+.rule-card .rule-icon{font-size:26px;margin-bottom:12px;}
+.rule-card h4{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:8px;color:var(--gold2);}
+.rule-card p{font-size:12.5px;color:var(--muted);line-height:1.6;}
+.rule-card ul{margin-top:8px;padding-left:16px;}
+.rule-card ul li{font-size:12.5px;color:var(--muted);line-height:1.7;}
+
+/* ── OPENING ── */
+.filter-bar{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap;}
+.filter-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:100px;font-size:11.5px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;}
+.filter-btn:hover,.filter-btn.active{background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold2);}
+.opening-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
+.opening-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .25s;cursor:pointer;}
+.opening-card:hover{border-color:rgba(201,168,76,.35);box-shadow:0 8px 30px rgba(0,0,0,.4);transform:translateY(-3px);}
+.chess-svg-wrap{width:100%;aspect-ratio:1;display:block;background:#1a1a2e;}
+.opening-info{padding:16px 18px;}
+.opening-tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.opening-info h4{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:7px;}
+.opening-notation{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--blue);background:rgba(74,144,217,.08);padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:8px;}
+.opening-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+
+/* ── TACTIC ── */
+.tactic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.tactic-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;transition:all .25s;}
+.tactic-card:hover{border-color:rgba(201,168,76,.25);transform:translateY(-2px);}
+.tactic-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:10px;}
+.tactic-card h4{font-family:'Playfair Display',serif;font-size:17px;margin-bottom:8px;}
+.tactic-card p{font-size:12.5px;color:var(--muted);line-height:1.6;}
+.tactic-card .example{margin-top:10px;padding:8px 12px;background:rgba(74,144,217,.07);border-left:3px solid var(--blue);border-radius:0 6px 6px 0;font-size:11.5px;color:#8eb8e8;font-style:italic;}
+
+/* ── PRINCIPLE LIST ── */
+.principle-list{display:flex;flex-direction:column;gap:12px;margin-top:32px;}
+.principle-item{display:flex;gap:14px;align-items:flex-start;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;}
+.principle-item .p-num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);min-width:24px;margin-top:2px;}
+.principle-item .p-body strong{display:block;font-size:13.5px;margin-bottom:3px;}
+.principle-item .p-body span{font-size:12.5px;color:var(--muted);}
+
+/* ── ENDGAME ── */
+.endgame-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.endgame-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;}
+.endgame-card .icon{font-size:26px;margin-bottom:10px;}
+.endgame-card h4{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:6px;color:var(--gold2);}
+.endgame-card p{font-size:12.5px;color:var(--muted);line-height:1.5;}
+
+/* ── GM PROFILES ── */
+.gm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.gm-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:26px;display:flex;flex-direction:column;gap:14px;transition:all .25s;}
+.gm-card:hover{border-color:rgba(201,168,76,.3);box-shadow:0 6px 24px rgba(0,0,0,.35);}
+.gm-header{display:flex;align-items:center;gap:14px;}
+.gm-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#6b3d00);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:2px solid rgba(201,168,76,.3);}
+.gm-meta strong{font-family:'Playfair Display',serif;font-size:16px;display:block;}
+.gm-meta span{font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;}
+.gm-peak{display:flex;gap:12px;}
+.gm-stat{flex:1;background:rgba(201,168,76,.05);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
+.gm-stat .val{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--gold2);display:block;}
+.gm-stat .lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.gm-style{font-size:12px;color:var(--muted);line-height:1.6;padding-top:4px;border-top:1px solid var(--border);}
+.gm-style strong{color:var(--text);}
+.gm-opening{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);background:rgba(74,144,217,.08);padding:3px 10px;border-radius:4px;display:inline-block;}
+
+/* ── STRATEGY CARDS ── */
+.strategy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.strategy-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;}
+.strategy-card h4{font-family:'Playfair Display',serif;font-size:15px;margin-bottom:10px;color:var(--gold2);}
+.strategy-card p{font-size:12.5px;color:var(--muted);line-height:1.6;}
+.strategy-card ol,.strategy-card ul{padding-left:16px;margin-top:8px;}
+.strategy-card ol li,.strategy-card ul li{font-size:12.5px;color:var(--muted);line-height:1.8;}
+.strategy-card .badge{display:inline-block;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.25);color:var(--gold);font-size:10px;padding:2px 10px;border-radius:100px;letter-spacing:1px;margin-bottom:10px;}
+
+/* ── HIGHLIGHT BOX ── */
+.hl-box{background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:20px 24px;margin:24px 0;}
+.hl-box strong{color:var(--gold2);}
+.hl-box p{font-size:13px;color:var(--muted);margin-top:4px;}
+
+/* ── TABLE ── */
+.data-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;}
+.data-table th,.data-table td{border:1px solid var(--border);padding:10px 14px;text-align:left;}
+.data-table th{background:rgba(201,168,76,.1);color:var(--gold2);font-weight:600;font-size:11px;letter-spacing:.5px;text-transform:uppercase;}
+.data-table tr:hover td{background:rgba(255,255,255,.02);}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ── FOOTER ── */
+footer{padding:36px 60px;text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px;}
+footer span{color:var(--gold);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  nav{display:none;}
+  main{margin-left:0;}
+  section,.hero{padding:44px 20px;}
+  .chess-deco{display:none;}
+  .piece-grid,.tactic-grid,.endgame-grid,.gm-grid,.rule-grid,.info-grid,.strategy-grid{grid-template-columns:1fr;}
+  .sticky-cats{padding:0 16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav>
+  <div class="nav-logo">
+    <span>Catur Masterclass</span>
+    <small>E-Book Lengkap</small>
+  </div>
+  <a class="nav-item" href="#bab0"><span class="num">00</span> Sejarah Catur</a>
+  <a class="nav-item" href="#bab1"><span class="num">01</span> Nilai Bidak</a>
+  <a class="nav-item" href="#bab2"><span class="num">02</span> Aturan Khusus</a>
+  <a class="nav-item" href="#bab3"><span class="num">03</span> 35 Opening</a>
+  <a class="nav-item" href="#bab4"><span class="num">04</span> Taktik Middlegame</a>
+  <a class="nav-item" href="#bab5"><span class="num">05</span> Teori Endgame</a>
+  <a class="nav-item" href="#bab6"><span class="num">06</span> Cara Bermain GM</a>
+  <a class="nav-item" href="#bab7"><span class="num">07</span> Profil Grandmaster</a>
+</nav>
+
+<main>
+
+<!-- HERO -->
+<div class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="chess-deco" id="chessDeco"></div>
+  <div class="hero-badge">♟ E-Book Interaktif</div>
+  <h1>Panduan Lengkap<br><em>Catur Masterclass</em></h1>
+  <p class="hero-sub">Dari sejarah penciptaan, penguasaan bidak, hingga cara berpikir layaknya Grandmaster dunia.</p>
+  <div class="hero-stats">
+    <div class="stat-item"><strong>5000+</strong><span>Tahun Sejarah</span></div>
+    <div class="stat-item"><strong>35+</strong><span>Opening</span></div>
+    <div class="stat-item"><strong>10+</strong><span>Taktik</span></div>
+    <div class="stat-item"><strong>8</strong><span>Profil GM</span></div>
+  </div>
+</div>
+
+<!-- STICKY CATEGORY TABS -->
+<div class="sticky-cats" id="stickyCats">
+  <div class="cat-tab active" onclick="scrollToSection('bab0',this)">⏳ Sejarah</div>
+  <div class="cat-tab" onclick="scrollToSection('bab1',this)">♟ Bidak</div>
+  <div class="cat-tab" onclick="scrollToSection('bab2',this)">📜 Aturan</div>
+  <div class="cat-tab" onclick="scrollToSection('bab3',this)">📖 Opening</div>
+  <div class="cat-tab" onclick="scrollToSection('bab4',this)">⚔️ Taktik</div>
+  <div class="cat-tab" onclick="scrollToSection('bab5',this)">♔ Endgame</div>
+  <div class="cat-tab" onclick="scrollToSection('bab6',this)">🧠 Gaya GM</div>
+  <div class="cat-tab" onclick="scrollToSection('bab7',this)">🏆 Grandmaster</div>
+</div>
+
+<!-- BAB 0: SEJARAH -->
+<section id="bab0">
+  <div class="section-header">
+    <div class="section-num">00</div>
+    <div class="section-title">
+      <h2>Sejarah Catur Dunia</h2>
+      <p>Dari India kuno hingga era Artificial Intelligence</p>
+    </div>
+  </div>
+
+  <div class="hl-box">
+    <strong>Fakta Menarik:</strong>
+    <p>Catur adalah salah satu permainan tertua dan paling banyak dipelajari di dunia. Posisi catur yang mungkin terjadi lebih banyak dari jumlah atom di alam semesta yang teramati — sekitar 10<sup>120</sup> (Angka Shannon).</p>
+  </div>
+
+  <div class="cat-label">Garis Waktu Sejarah</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">±500 M — India</div>
+      <h4>Chaturanga — Nenek Moyang Catur</h4>
+      <p>Catur lahir di India pada era Kerajaan Gupta dengan nama <em>Chaturanga</em>, bahasa Sansekerta untuk "empat divisi militer" — infanteri (pion), kavaleri (kuda), gajah (gajah), dan kereta perang (benteng). Dimainkan oleh empat pemain di papan 8×8.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">600 M — Persia</div>
+      <h4>Chatrang / Shatranj — Masuk ke Dunia Islam</h4>
+      <p>Catur dibawa ke Persia dan berkembang menjadi <em>Shatranj</em>. Di sinilah lahir konsep "Shah Mat" (Raja terjebak) yang menjadi "Checkmate" dalam bahasa Inggris. Persia memperkaya teori permainan dengan manuskrip strategi pertama.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">900–1200 M — Arab & Eropa</div>
+      <h4>Penyebaran via Jalur Sutra</h4>
+      <p>Peradaban Islam menyebarkan catur ke seluruh wilayah kekuasaannya, dari Spanyol (al-Andalus) hingga Asia Tengah. Orang Arab menulis buku analisis mendalam. Catur kemudian masuk Eropa lewat Spanyol dan Italia, di mana aturannya mulai distandarisasi.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1475 — Eropa</div>
+      <h4>Revolusi Aturan Modern</h4>
+      <p>Aturan besar diubah di Spanyol dan Italia: Menteri (sebelumnya hanya bergerak satu petak) mendapat kekuatan penuh seperti sekarang. Pion dibolehkan maju dua langkah dari posisi awal. En passant dan rokade diperkenalkan. Inilah catur seperti yang kita kenal.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1749 — Prancis</div>
+      <h4>François-André Philidor — Maestro Pertama</h4>
+      <p>Philidor menerbitkan <em>L'Analyse des Échecs</em>, buku catur modern pertama. Ia menulis kalimat legendaris: <strong>"Pion adalah jiwa catur."</strong> Ia mendominasi dunia catur selama 40+ tahun dan meletakkan dasar teori posisional.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1851 — London</div>
+      <h4>Turnamen Internasional Pertama</h4>
+      <p>Turnamen catur internasional pertama digelar di London, dimenangkan oleh Adolf Anderssen dari Jerman. Era "catur romantik" — ditandai pengorbanan berani dan serangan brilliant — mencapai puncaknya di sini.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1886 — Amerika Serikat</div>
+      <h4>Kejuaraan Dunia Resmi Pertama</h4>
+      <p>Wilhelm Steinitz mengalahkan Johannes Zukertort di pertandingan yang secara resmi disebut Kejuaraan Dunia pertama. Steinitz juga mendirikan teori posisional modern: keunggulan kecil yang diakumulasikan akan menghasilkan kemenangan.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1924 — Paris</div>
+      <h4>Federasi Catur Dunia (FIDE) Berdiri</h4>
+      <p>Fédération Internationale des Échecs didirikan di Paris. FIDE mengatur turnamen, gelar, dan aturan catur secara global hingga hari ini. Gelar Grandmaster mulai diberikan secara resmi pada 1950.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1972 — Reykjavik</div>
+      <h4>Match of the Century — Fischer vs Spassky</h4>
+      <p>Bobby Fischer mengalahkan Boris Spassky dalam "Match of the Century" yang ditonton seluruh dunia. Pertandingan ini terjadi di puncak Perang Dingin, menjadikannya jauh lebih dari sekadar catur — itu adalah pertarungan ideologi Amerika vs Soviet.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">1997 — New York</div>
+      <h4>Deep Blue Mengalahkan Kasparov</h4>
+      <p>Komputer Deep Blue milik IBM mengalahkan Garry Kasparov, juara dunia manusia, untuk pertama kalinya dalam pertandingan resmi. Momen bersejarah yang menandai era baru di mana mesin melampaui manusia dalam catur.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">2017 — Era AI</div>
+      <h4>AlphaZero — Kecerdasan Buatan Mendominasi</h4>
+      <p>AlphaZero milik Google DeepMind mempelajari catur dari nol hanya dalam 4 jam, lalu mengalahkan Stockfish (program catur terkuat saat itu) dengan skor 28-0. AI kini digunakan semua GM untuk mempersiapkan opening dan menganalisis pertandingan.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-year">2020–Sekarang</div>
+      <h4>Catur Online Meledak</h4>
+      <p>Pandemi COVID-19 dan series Netflix <em>The Queen's Gambit</em> memicu ledakan popularitas catur online. Chess.com mencatat lebih dari 100 juta anggota terdaftar. Catur kini menjadi olahraga/esports dengan jutaan penonton streaming setiap harinya.</p>
+    </div>
+  </div>
+
+  <div class="cat-label" style="margin-top:44px;">Asal-Usul Bidak</div>
+  <table class="data-table">
+    <tr><th>Bidak Modern</th><th>Nama Chaturanga</th><th>Representasi Asli</th><th>Perubahan Besar</th></tr>
+    <tr><td>Raja (K)</td><td>Raja</td><td>Raja kerajaan</td><td>Tetap sama sejak awal</td></tr>
+    <tr><td>Menteri (Q)</td><td>Mantri (Penasihat)</td><td>Perdana menteri — hanya 1 petak</td><td>1475: Jadi bidak terkuat</td></tr>
+    <tr><td>Gajah (B)</td><td>Gaja (Gajah perang)</td><td>Bergerak 2 diagonal + lompat</td><td>Disederhanakan ke diagonal penuh</td></tr>
+    <tr><td>Kuda (N)</td><td>Ashva (Kuda)</td><td>Sama: gerak L</td><td>Tidak berubah</td></tr>
+    <tr><td>Benteng (R)</td><td>Ratha (Kereta perang)</td><td>Sama: gerak horizontal/vertikal</td><td>Tidak berubah</td></tr>
+    <tr><td>Pion (P)</td><td>Padati (Infanteri)</td><td>Hanya maju 1 petak</td><td>1475: Boleh maju 2 dari posisi awal</td></tr>
+  </table>
+</section>
+
+<!-- BAB 1: BIDAK -->
+<section id="bab1">
+  <div class="section-header">
+    <div class="section-num">01</div>
+    <div class="section-title">
+      <h2>Anatomi & Nilai Strategis Bidak</h2>
+      <p>Kenali kekuatan dan cara bergerak setiap perwira</p>
+    </div>
+  </div>
+  <div class="piece-grid">
+    <div class="piece-card">
+      <div class="piece-symbol">♙</div>
+      <div class="piece-name">Pion</div>
+      <div class="piece-value">1 poin · Simbol: P</div>
+      <div class="piece-desc">Fondasi struktur permainan. Satu-satunya bidak yang cara tangkap berbeda dengan cara jalan — maju lurus, tangkap diagonal.</div>
+      <div class="piece-moves">Maju 1 petak (atau 2 dari posisi awal). Tangkap diagonal. Promosi di baris ke-8.</div>
+    </div>
+    <div class="piece-card">
+      <div class="piece-symbol">♘</div>
+      <div class="piece-name">Kuda</div>
+      <div class="piece-value">3 poin · Simbol: N</div>
+      <div class="piece-desc">Satu-satunya bidak yang bisa melompati bidak lain. Sangat dominan di posisi tertutup. Kuda di tepi papan kehilangan banyak opsi gerak.</div>
+      <div class="piece-moves">Gerak "L": 2 petak lurus + 1 menyamping (atau sebaliknya). Bisa lompati bidak.</div>
+    </div>
+    <div class="piece-card">
+      <div class="piece-symbol">♗</div>
+      <div class="piece-name">Gajah</div>
+      <div class="piece-value">3 poin · Simbol: B</div>
+      <div class="piece-desc">Meluncur diagonal tak terbatas. Gajah terang dan gelap tidak pernah bertemu. Sepasang gajah ("bishop pair") adalah keuntungan jangka panjang yang besar.</div>
+      <div class="piece-moves">Diagonal tanpa batas. Selalu di warna yang sama sepanjang permainan.</div>
+    </div>
+    <div class="piece-card">
+      <div class="piece-symbol">♖</div>
+      <div class="piece-name">Benteng</div>
+      <div class="piece-value">5 poin · Simbol: R</div>
+      <div class="piece-desc">Penguasa garis dan lajur. Makin kuat saat papan terbuka di endgame. Dua benteng di baris ke-7 hampir selalu mematikan.</div>
+      <div class="piece-moves">Horizontal dan vertikal tanpa batas. Berperan dalam rokade bersama Raja.</div>
+    </div>
+    <div class="piece-card">
+      <div class="piece-symbol">♕</div>
+      <div class="piece-name">Menteri</div>
+      <div class="piece-value">9 poin · Simbol: Q</div>
+      <div class="piece-desc">Gabungan Benteng + Gajah. Bidak paling fleksibel di papan. Jangan aktifkan terlalu awal — mudah diusir dan kehilangan tempo berharga.</div>
+      <div class="piece-moves">Semua arah (horizontal, vertikal, diagonal) tanpa batas jangkauan.</div>
+    </div>
+    <div class="piece-card">
+      <div class="piece-symbol">♔</div>
+      <div class="piece-name">Raja</div>
+      <div class="piece-value">∞ · Simbol: K</div>
+      <div class="piece-desc">Target utama permainan. Di opening/middlegame: sembunyikan. Di endgame: aktifkan! Raja pasif di endgame seringkali jadi penyebab kekalahan.</div>
+      <div class="piece-moves">Satu petak ke semua arah. Tidak boleh bergerak ke petak yang diserang lawan.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:36px;">
+    <div class="cat-label">Nilai Relatif vs Absolut</div>
+    <p style="color:var(--muted);font-size:13px;max-width:700px;margin-bottom:16px;">Nilai poin adalah panduan, bukan aturan mutlak. Posisi dan aktivitas bidak sering jauh lebih penting dari nilainya. Contoh: Gajah "bad bishop" yang terkurung pion sendiri bisa bernilai lebih rendah dari Kuda aktif.</p>
+    <table class="data-table">
+      <tr><th>Situasi</th><th>Nilai Praktis</th><th>Penjelasan</th></tr>
+      <tr><td>Gajah di posisi terbuka</td><td>3.5 poin</td><td>Diagonal panjang tak terhambat = sangat aktif</td></tr>
+      <tr><td>Kuda di pusat papan</td><td>3.5 poin</td><td>Menguasai 8 petak, mengancam banyak arah</td></tr>
+      <tr><td>Kuda di tepi papan</td><td>2 poin</td><td>"A knight on the rim is dim" — pepatah catur</td></tr>
+      <tr><td>Sepasang gajah</td><td>7+ poin</td><td>Sinergi luar biasa di posisi terbuka</td></tr>
+      <tr><td>Benteng di baris terbuka</td><td>6 poin</td><td>Bebas bergerak, menekan lawan dari jauh</td></tr>
+      <tr><td>Pion passed terhubung</td><td>2–3 poin</td><td>Ancaman promosi berganda yang sulit dihentikan</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- BAB 2: ATURAN KHUSUS -->
+<section id="bab2">
+  <div class="section-header">
+    <div class="section-num">02</div>
+    <div class="section-title">
+      <h2>Mekanisme Aturan Khusus</h2>
+      <p>Gerakan unik dan kondisi akhir permainan yang wajib dikuasai</p>
+    </div>
+  </div>
+  <div class="rule-grid">
+    <div class="rule-card">
+      <div class="rule-icon">🏰</div>
+      <h4>Rokade (Castling)</h4>
+      <p>Satu-satunya langkah yang menggerakkan dua bidak sekaligus. Raja bergerak dua petak ke arah Benteng, lalu Benteng melompati Raja.</p>
+      <ul>
+        <li>Raja dan Benteng yang dipilih belum pernah bergerak</li>
+        <li>Tidak ada bidak di antara Raja dan Benteng</li>
+        <li>Raja tidak sedang di-skak</li>
+        <li>Petak yang dilalui Raja tidak diserang lawan</li>
+        <li>Rokade pendek (O-O) ke sisi raja, rokade panjang (O-O-O) ke sisi menteri</li>
+      </ul>
+    </div>
+    <div class="rule-card">
+      <div class="rule-icon">⚡</div>
+      <h4>En Passant</h4>
+      <p>Tangkapan istimewa pion. Jika pion lawan maju dua petak dari posisi awal dan mendarat di samping pion kita, kita bisa menangkapnya seolah ia hanya maju satu petak.</p>
+      <ul>
+        <li>Hanya bisa dilakukan tepat di giliran berikutnya</li>
+        <li>Jika dilewatkan, hak tersebut hilang selamanya</li>
+        <li>Hasil tangkapan: pion kita pindah diagonal, pion lawan disingkirkan</li>
+        <li>Sering digunakan untuk menghindari struktur pion yang buruk</li>
+      </ul>
+    </div>
+    <div class="rule-card">
+      <div class="rule-icon">♛</div>
+      <h4>Promosi Pion</h4>
+      <p>Pion yang mencapai baris ke-8 (putih) atau baris ke-1 (hitam) wajib dipromosikan ke Menteri, Benteng, Gajah, atau Kuda.</p>
+      <ul>
+        <li>Promosi ke Menteri adalah pilihan terkuat dalam 99% kasus</li>
+        <li><strong>Underpromotion ke Kuda:</strong> Berguna untuk memberi skak sekaligus atau menghindari stalemate</li>
+        <li>Boleh punya lebih dari satu Menteri di papan</li>
+        <li>Pion passed yang mendekati promosi adalah aset besar</li>
+      </ul>
+    </div>
+    <div class="rule-card">
+      <div class="rule-icon">🤝</div>
+      <h4>Kondisi Seri (Draw)</h4>
+      <p>Permainan berakhir seri dalam berbagai kondisi:</p>
+      <ul>
+        <li><strong>Stalemate:</strong> Raja tidak di-skak tapi tidak bisa bergerak</li>
+        <li><strong>Repetisi 3x:</strong> Posisi yang sama terulang tiga kali</li>
+        <li><strong>Aturan 50 langkah:</strong> 50 langkah tanpa tangkap atau gerak pion</li>
+        <li><strong>Material kurang:</strong> K vs K, K+B vs K, K+N vs K</li>
+        <li><strong>Kesepakatan:</strong> Kedua pemain setuju seri</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- BAB 3: OPENING -->
+<section id="bab3">
+  <div class="section-header">
+    <div class="section-num">03</div>
+    <div class="section-title">
+      <h2>Ensiklopedia 35 Opening</h2>
+      <p>Repertoar lengkap dari klasik hingga hipermodern</p>
+    </div>
+  </div>
+
+  <div class="hl-box">
+    <strong>3 Prinsip Universal Opening:</strong>
+    <p>① Kuasai pusat papan (e4, d4, e5, d5) — ② Kembangkan perwira secepat mungkin — ③ Amankan Raja dengan rokade sebelum memulai serangan.</p>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterOpening('all',this)">Semua (35)</button>
+    <button class="filter-btn" onclick="filterOpening('e4',this)">1. e4 — King's Pawn</button>
+    <button class="filter-btn" onclick="filterOpening('d4',this)">1. d4 — Queen's Pawn</button>
+    <button class="filter-btn" onclick="filterOpening('flank',this)">Flank & Lainnya</button>
+  </div>
+
+  <div class="opening-grid" id="openingGrid"></div>
+</section>
+
+<!-- BAB 4: TAKTIK -->
+<section id="bab4">
+  <div class="section-header">
+    <div class="section-num">04</div>
+    <div class="section-title">
+      <h2>Taktik & Kalkulasi Middlegame</h2>
+      <p>10 pola serangan yang wajib dihafalkan</p>
+    </div>
+  </div>
+
+  <div class="tactic-grid">
+    <div class="tactic-card">
+      <div class="tactic-num">TAKTIK 01</div>
+      <h4>⚔️ Fork (Garpu)</h4>
+      <p>Satu bidak menyerang dua atau lebih bidak lawan secara bersamaan, memaksa lawan hanya bisa menyelamatkan satu di antaranya. Kuda adalah spesialis fork yang paling mematikan.</p>
+      <div class="example">Kuda di e5 menyerang Raja di g6 dan Menteri di c4 sekaligus — salah satu pasti hilang.</div>
+    </div>
+    <div class="tactic-card">
+      <div class="tactic-num">TAKTIK 02</div>
+      <h4>📌 Pin (Paku)</h4>
+      <p>Menyerang bidak yang jika bergerak akan mengekspos bidak yang lebih berharga di belakangnya. Absolute pin = bidak tidak bisa bergerak sama sekali karena Raja di belakang.</p>
+      <div class="example">Gajah di b5 memaku Kuda c6 ke Raja di e8 — Kuda tidak boleh bergerak, karena Raja akan terkena skak.</div>
+    </div>
+    <div class="tactic-card">
+      <div class="tactic-num">TAKTIK 03</div>
+      <h4>🗡️ Skewer (Tusukan)</h4>
+      <p>Kebalikan dari Pin. Menyerang bidak lebih berharga di depan, memaksanya pindah sehingga bidak kurang berharga di belakangnya pun ikut dimakan.</p>
+      <div class="example">Benteng menyerang Raja, Raja harus lari, Menteri di belakang Raja langsung diambil.</div>
+    </div>
+    <div class="tactic-card">
+      <div class="tactic-num">TAKTIK 04</div>
+      <h4>💣 Discovered Attack</h4>
+      <p>Memindahkan satu bidak untuk "membuka" serangan bidak lain di belakangnya. Sering menghasilkan double attack yang mematikan karena dua ancaman sekaligus.</p>
+      <div class="example">Kuda bergerak membuka Benteng yang langsung menyerang Menteri — disebut "discovered check" jika Raja terkena.</div>
+    </div>
+    <div class="tactic-card">
+      <div class="tactic-num">TAKTIK 05</div>
+      <h4>💥 Double Check</h4>
+      <p>Discovered attack di mana Raja diserang oleh dua bidak sekaligus. Satu-satunya cara keluar adalah memindahkan Raja — blok tidak mungkin menghentikan dua serangan sekaligus.</p>
+      <div class="example">Salah satu kombinasi paling brutal. Selalu memaksa Raja bergerak, tak ada pilihan lain.</div>
+    </div>
+    <div class="tactic-card">
+      <div class="tactic-num">TAKTIK 06</div>
+      <h4>🎯 Overloading</h4>
+      <p>Membebani satu bidak pertahanan lawan dengan tugas ganda yang tidak bisa dipenuhi bersamaan, lalu mengeksploitasi kelemahan yang timbul.</p>
+      <div class="example">Menteri lawan menjaga Benteng di d8 sekaligus f7 — ancam keduanya bersamaan untuk menang materi.</div>
+    </div>
+    <div class="tactic-card">
+      <div class="tactic-num">TAKTIK 07</div>
+      <h4>🔄 Deflection (Pengalihan)</h4>
+      <p>Memaksa bidak pertahanan kunci meninggalkan tugasnya, biasanya lewat pengorbanan, sehingga objek yang dijaganya jadi tak terlindungi.</p>
+      <div class="example">Korbankan Menteri ke petak yang dijaga Benteng — Benteng terpaksa makan, Raja terbuka dan mati.</div>
+    </div>
+    <div class="tactic-card">
+      <div class="tactic-num">TAKTIK 08</div>
+      <h4>🕳️ Zwischenzug</h4>
+      <p>Bahasa Jerman: "Langkah di antaranya." Daripada merespons langsung, sisipkan langkah mengancam yang memaksa lawan bereaksi, lalu baru lanjutkan rencana awal.</p>
+      <div class="example">Daripada asal tangkap balik, beri skak dulu — lawan harus respons, posisi berubah menguntungkan kita.</div>
+    </div>
+    <div class="tactic-card">
+      <div class="tactic-num">TAKTIK 09</div>
+      <h4>🔮 X-Ray Attack</h4>
+      <p>Serangan "tembus pandang" melewati bidak lain. Terjadi ketika bidak menyerang melalui satu bidak yang menghalanginya — ancaman tersembunyi yang sering diabaikan.</p>
+      <div class="example">Menteri putih di a1 "menatap" Menteri hitam di h8 melewati semua bidak — siapa yang meninggalkan diagonal duluan kalah.</div>
+    </div>
+    <div class="tactic-card">
+      <div class="tactic-num">TAKTIK 10</div>
+      <h4>🏹 Interference</h4>
+      <p>Mengorbankan bidak ke petak yang memutus komunikasi antara dua bidak pertahanan lawan, membuat keduanya tidak bisa saling melindungi.</p>
+      <div class="example">Korbankan Benteng di d5 untuk memutus diagonal Gajah hitam yang melindungi petak f7 yang kritis.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:40px;">
+    <div class="cat-label">Prinsip Kalkulasi</div>
+    <div class="principle-list">
+      <div class="principle-item">
+        <span class="p-num">01</span>
+        <div class="p-body"><strong>Kandidat Langkah (Candidate Moves)</strong><span>Daftarkan 2–3 kandidat terbaik sebelum melangkah. Jangan eksekusi ide pertama yang terlintas.</span></div>
+      </div>
+      <div class="principle-item">
+        <span class="p-num">02</span>
+        <div class="p-body"><strong>CCT — Checks, Captures, Threats</strong><span>Urutan kalkulasi: skak → tangkap → ancam. Urutan ini sering menghasilkan kombinasi yang terlewat.</span></div>
+      </div>
+      <div class="principle-item">
+        <span class="p-num">03</span>
+        <div class="p-body"><strong>Blunder Check</strong><span>Setelah memilih langkah terbaik, tanya: "Apakah ini aman? Apakah lawan bisa merespons dengan sesuatu yang menghancurkan?"</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BAB 5: ENDGAME -->
+<section id="bab5">
+  <div class="section-header">
+    <div class="section-num">05</div>
+    <div class="section-title">
+      <h2>Teori Endgame & Oposisi</h2>
+      <p>Di sinilah pertandingan sesungguhnya dimenangkan atau diselamatkan</p>
+    </div>
+  </div>
+
+  <div class="endgame-grid">
+    <div class="endgame-card">
+      <div class="icon">👑</div>
+      <h4>Oposisi Raja</h4>
+      <p>Dua raja berhadapan dengan satu petak di antaranya. Raja yang "memiliki oposisi" (giliran lawan melangkah) punya keunggulan — kunci untuk mendorong pion ke promosi.</p>
+    </div>
+    <div class="endgame-card">
+      <div class="icon">📐</div>
+      <h4>Aturan Kotak</h4>
+      <p>Gambar kotak imajiner dari pion ke baris promosi. Jika Raja lawan tidak bisa masuk kotak itu saat gilirannya, pion tidak bisa dikejar dan pasti promosi.</p>
+    </div>
+    <div class="endgame-card">
+      <div class="icon">🔑</div>
+      <h4>Key Squares</h4>
+      <p>Petak kunci yang jika dikuasai Raja penyerang, pion pasti promosi tanpa bergantung posisi Raja lawan. Berbeda untuk setiap kolom pion.</p>
+    </div>
+    <div class="endgame-card">
+      <div class="icon">🏁</div>
+      <h4>Lucena Position</h4>
+      <p>Posisi menang klasik Benteng + Pion vs Benteng. Teknik "building a bridge" — Benteng menyekat Raja lawan sementara pion mendekati promosi.</p>
+    </div>
+    <div class="endgame-card">
+      <div class="icon">🛡️</div>
+      <h4>Philidor Position</h4>
+      <p>Teknik bertahan Benteng vs Benteng + Pion. Benteng di baris ke-6 saat pion belum maju, lalu pindah ke belakang pion saat Raja menghalangi.</p>
+    </div>
+    <div class="endgame-card">
+      <div class="icon">♟</div>
+      <h4>Pion Passed</h4>
+      <p>Pion tanpa penghalang menuju promosi. Prinsip Nimzowitsch: "Pion passed harus didorong maju!" Distant passed pawn sering memecah perhatian lawan.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:36px;">
+    <div class="cat-label">7 Prinsip Endgame</div>
+    <div class="principle-list">
+      <div class="principle-item"><span class="p-num">01</span><div class="p-body"><strong>Aktifkan Raja</strong><span>Di endgame Raja adalah bidak tempur yang kuat. Bawa ke tengah papan secepat mungkin — "King goes to the center!"</span></div></div>
+      <div class="principle-item"><span class="p-num">02</span><div class="p-body"><strong>Jangan Buru-Buru Menang</strong><span>Identifikasi rencana paling sederhana dan paling jelas. Kompleksitas berlebihan sering mengubah kemenangan jadi stalemate.</span></div></div>
+      <div class="principle-item"><span class="p-num">03</span><div class="p-body"><strong>Hindari Stalemate</strong><span>Saat unggul material besar, selalu pastikan lawan masih punya gerakan legal. Stalemate mengubah kemenangan pasti jadi seri.</span></div></div>
+      <div class="principle-item"><span class="p-num">04</span><div class="p-body"><strong>Benteng Harus Aktif</strong><span>Tempatkan Benteng di baris atau kolom terbuka. Hindari peran pasif sebagai "penjaga" — Benteng harus menyerang, bukan bertahan.</span></div></div>
+      <div class="principle-item"><span class="p-num">05</span><div class="p-body"><strong>Kuda vs Gajah</strong><span>Gajah unggul di posisi terbuka dan pion di kedua sisi. Kuda unggul di posisi tertutup atau semua pion di satu sisi papan.</span></div></div>
+      <div class="principle-item"><span class="p-num">06</span><div class="p-body"><strong>Pion Passed = Aset Berharga</strong><span>Pertahankan dan dorong pion passed. Jika lawan punya pion passed jauh, ciptakan pion passed kita sendiri untuk counter.</span></div></div>
+      <div class="principle-item"><span class="p-num">07</span><div class="p-body"><strong>Triangulation</strong><span>Teknik manuver Raja untuk "membuang" giliran dan mendapatkan oposisi saat jalur langsung tidak tersedia.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- BAB 6: CARA BERMAIN SEPERTI GM -->
+<section id="bab6">
+  <div class="section-header">
+    <div class="section-num">06</div>
+    <div class="section-title">
+      <h2>Cara Bermain Layaknya Grandmaster</h2>
+      <p>Mindset, pola berpikir, dan kebiasaan para elite dunia</p>
+    </div>
+  </div>
+
+  <div class="hl-box">
+    <strong>Perbedaan Pemain Biasa vs Grandmaster:</strong>
+    <p>Pemain biasa bereaksi terhadap ancaman. Grandmaster menciptakan ancaman sambil sekaligus membangun rencana jangka panjang. GM tidak sekedar "melihat lebih jauh" — mereka <em>memahami posisi secara mendalam</em>.</p>
+  </div>
+
+  <div class="cat-label">Cara Berpikir GM</div>
+  <div class="strategy-grid">
+    <div class="strategy-card">
+      <div class="badge">FASE OPENING</div>
+      <h4>Prinsip Opening GM</h4>
+      <ol>
+        <li>Kuasai pusat dengan pion atau kontrol petak (e4, d4)</li>
+        <li>Kembangkan semua perwira sebelum menyerang</li>
+        <li>Rokade secepat mungkin untuk mengamankan Raja</li>
+        <li>Jangan gerakkan bidak yang sama dua kali di opening</li>
+        <li>Jangan keluarkan Menteri terlalu dini</li>
+        <li>Hubungkan Benteng — pindahkan semua bidak di antara Raja dan Benteng</li>
+      </ol>
+    </div>
+    <div class="strategy-card">
+      <div class="badge">FASE MIDDLEGAME</div>
+      <h4>Strategi Middlegame</h4>
+      <ol>
+        <li>Identifikasi kelemahan di posisi lawan (petak lemah, pion terisolir)</li>
+        <li>Tempatkan bidak di petak terbaik mereka (outpost untuk Kuda)</li>
+        <li>Buka file untuk Benteng di kolom yang sesuai rencana</li>
+        <li>Jaga keseimbangan antara serangan dan pertahanan</li>
+        <li>Cari kombinasi taktis tapi jangan abaikan strategi jangka panjang</li>
+        <li>Pertimbangkan trade — tukar bidak aktif lawan dengan bidak pasif kita</li>
+      </ol>
+    </div>
+    <div class="strategy-card">
+      <div class="badge">EVALUASI POSISI</div>
+      <h4>Cara GM Mengevaluasi Posisi</h4>
+      <ul>
+        <li><strong>Material:</strong> Siapa yang unggul poin?</li>
+        <li><strong>Raja:</strong> Seberapa aman Raja masing-masing?</li>
+        <li><strong>Aktivitas:</strong> Bidak siapa yang lebih aktif?</li>
+        <li><strong>Struktur pion:</strong> Ada doubled, isolated, passed pion?</li>
+        <li><strong>Ruang:</strong> Siapa yang lebih banyak menguasai papan?</li>
+        <li><strong>Inisiatif:</strong> Siapa yang sedang menyerang/bertahan?</li>
+      </ul>
+    </div>
+    <div class="strategy-card">
+      <div class="badge">PSIKOLOGI</div>
+      <h4>Mentalitas GM dalam Turnamen</h4>
+      <ul>
+        <li>Bermain setiap posisi objektif, bukan emosional</li>
+        <li>Kekalahan dianalisis secara dingin — bukan disesali berlebihan</li>
+        <li>Kelola waktu jam dengan baik — jangan panik di time pressure</li>
+        <li>Selalu cari "satu langkah lagi" sebelum menyerah seri</li>
+        <li>Waspadai jebakan psikologis: takut kalah membuat pilihan salah</li>
+        <li>Percaya pada kalkulasi sendiri, bukan intuisi semata</li>
+      </ul>
+    </div>
+    <div class="strategy-card">
+      <div class="badge">OUTPOST & PETAK LEMAH</div>
+      <h4>Menguasai Petak Lemah (Outpost)</h4>
+      <p>Outpost adalah petak di wilayah lawan yang tidak bisa diserang pion lawan. Kuda di outpost hampir tidak bisa diusir dan mendominasi papan.</p>
+      <ul style="margin-top:12px;">
+        <li>Ciptakan outpost dengan mendorong pion untuk membuka petak</li>
+        <li>Kuda di outpost e5 atau d5 = keuntungan posisional besar</li>
+        <li>Gajah "bad" lawan yang terkurung pion sendiri = target eksploitasi</li>
+        <li>Petak f5/f4 adalah outpost favorit untuk serangan sayap raja</li>
+      </ul>
+    </div>
+    <div class="strategy-card">
+      <div class="badge">RENCANA STRATEGIS</div>
+      <h4>Membuat Rencana seperti GM</h4>
+      <p>GM selalu bermain dengan <em>rencana konkret</em>, bukan bergerak tanpa tujuan. Cara membuat rencana:</p>
+      <ol style="margin-top:12px;">
+        <li>Evaluasi posisi secara menyeluruh (lihat kotak Evaluasi)</li>
+        <li>Identifikasi kelemahan terbesar lawan</li>
+        <li>Tentukan bidak terbaik untuk mengeksploitasi kelemahan itu</li>
+        <li>Pindahkan bidak tersebut ke petak optimal</li>
+        <li>Buat rencana B jika lawan merespons rencana A</li>
+      </ol>
+    </div>
+  </div>
+
+  <div style="margin-top:40px;">
+    <div class="cat-label">Struktur Pion — Fondasi Strategis</div>
+    <table class="data-table">
+      <tr><th>Tipe Pion</th><th>Definisi</th><th>Evaluasi</th><th>Cara Mengeksploitasi</th></tr>
+      <tr><td>Isolated Pawn</td><td>Tidak ada pion teman di kolom yang bersebelahan</td><td>Kelemahan — sulit dilindungi pion lain</td><td>Serang langsung dengan benteng dan bidak berat</td></tr>
+      <tr><td>Doubled Pawn</td><td>Dua pion di kolom yang sama</td><td>Umumnya lemah, tapi tergantung posisi</td><td>Serang dari depan dengan Benteng di file terbuka</td></tr>
+      <tr><td>Backward Pawn</td><td>Tertinggal dari pion tetangganya, tidak bisa maju</td><td>Kelemahan struktural jangka panjang</td><td>Tekan dengan Benteng di file terbuka tepat di depannya</td></tr>
+      <tr><td>Passed Pawn</td><td>Tidak ada pion lawan yang bisa menghalangi maju</td><td>Kekuatan besar, terutama di endgame</td><td>Dorong maju! Buat lawan habiskan bidak untuk menghentikannya</td></tr>
+      <tr><td>Connected Pawns</td><td>Dua pion yang saling menjaga secara diagonal</td><td>Solid, susah diserang</td><td>Jadikan fondasi serangan sayap</td></tr>
+    </table>
+  </div>
+
+  <div style="margin-top:40px;">
+    <div class="cat-label">Jadwal Latihan Harian ala GM</div>
+    <div class="principle-list">
+      <div class="principle-item"><span class="p-num">30'</span><div class="p-body"><strong>Puzzle Taktis</strong><span>Latih pola taktis setiap hari. Platform: Chess.com Puzzles, Lichess Puzzles. Target: minimal 10 puzzle per hari. Ini fondasi terpenting untuk pemain pemula-menengah.</span></div></div>
+      <div class="principle-item"><span class="p-num">60'</span><div class="p-body"><strong>Studi Opening</strong><span>Pilih satu repertoar opening dan kuasai secara mendalam. Jangan pelajari terlalu banyak opening sekaligus. Pahami idenya, bukan hafal langkah saja.</span></div></div>
+      <div class="principle-item"><span class="p-num">60'</span><div class="p-body"><strong>Analisis Pertandingan Sendiri</strong><span>Analisis semua kekalahan dan pertandingan yang seri. Cari momen di mana kalkulasi kamu salah. Ini cara terbaik untuk tidak mengulangi kesalahan yang sama.</span></div></div>
+      <div class="principle-item"><span class="p-num">30'</span><div class="p-body"><strong>Studi Endgame</strong><span>Endgame adalah area yang sering diabaikan pemain amatir tapi justru paling kritis. Kuasai: K+P vs K, R+P vs R, dan dasar-dasar endgame Menteri.</span></div></div>
+      <div class="principle-item"><span class="p-num">Rutin</span><div class="p-body"><strong>Main Pertandingan Klasik</strong><span>Main catur dengan waktu yang cukup (minimal 15+10 atau lebih). Blitz boleh untuk latihan, tapi catur klasik melatih kemampuan kalkulasi dan pengambilan keputusan yang sebenarnya.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- BAB 7: GM PROFILES -->
+<section id="bab7">
+  <div class="section-header">
+    <div class="section-num">07</div>
+    <div class="section-title">
+      <h2>Profil Legenda Grandmaster</h2>
+      <p>Pelajari gaya para maestro untuk memperkaya visi caturmu</p>
+    </div>
+  </div>
+
+  <div class="gm-grid">
+    <div class="gm-card">
+      <div class="gm-header"><div class="gm-avatar">♔</div><div class="gm-meta"><strong>Magnus Carlsen</strong><span>World Champion 2013–2023 · Norwegia</span></div></div>
+      <div class="gm-peak">
+        <div class="gm-stat"><span class="val">2882</span><span class="lbl">Peak Rating</span></div>
+        <div class="gm-stat"><span class="val">5×</span><span class="lbl">Juara Dunia</span></div>
+        <div class="gm-stat"><span class="val">Posisional</span><span class="lbl">Gaya</span></div>
+      </div>
+      <div class="gm-style"><strong>Karakteristik:</strong> "Greatest endgame player ever." Carlsen jarang mengandalkan teori — ia lebih suka posisi yang sedikit lebih baik dan mengeksploitasinya perlahan hingga lawan runtuh. Akurasi mesin dengan intuisi manusia. <br><br><span class="gm-opening">Favorit: English Opening, Berlin Defense</span></div>
+    </div>
+
+    <div class="gm-card">
+      <div class="gm-header"><div class="gm-avatar">🔥</div><div class="gm-meta"><strong>Garry Kasparov</strong><span>World Champion 1985–2000 · Rusia</span></div></div>
+      <div class="gm-peak">
+        <div class="gm-stat"><span class="val">2851</span><span class="lbl">Peak Rating</span></div>
+        <div class="gm-stat"><span class="val">15 Thn</span><span class="lbl">Memegang Gelar</span></div>
+        <div class="gm-stat"><span class="val">Dinamis</span><span class="lbl">Gaya</span></div>
+      </div>
+      <div class="gm-style"><strong>Karakteristik:</strong> Dianggap banyak orang sebagai pemain terkuat sepanjang masa. Kasparov menggabungkan persiapan opening yang revolusioner, kalkulasi tajam, dan intuisi posisional luar biasa. Dikenal karena kemauan bersaing yang tak tertandingi.<br><br><span class="gm-opening">Favorit: King's Indian, Najdorf Sicilian</span></div>
+    </div>
+
+    <div class="gm-card">
+      <div class="gm-header"><div class="gm-avatar">🔮</div><div class="gm-meta"><strong>Mikhail Tal</strong><span>World Champion 1960–1961 · Latvia</span></div></div>
+      <div class="gm-peak">
+        <div class="gm-stat"><span class="val">2705</span><span class="lbl">Peak Rating</span></div>
+        <div class="gm-stat"><span class="val">Taktis</span><span class="lbl">Gaya</span></div>
+        <div class="gm-stat"><span class="val">"Magician"</span><span class="lbl">Julukan</span></div>
+      </div>
+      <div class="gm-style"><strong>Karakteristik:</strong> "The Magician from Riga." Tal terkenal dengan pengorbanan bidak yang tampak irasional namun selalu menghasilkan serangan mematikan. Ia menggunakan psikologi — menciptakan posisi sangat kompleks hingga lawan kehilangan arah.<br><br><span class="gm-opening">Favorit: King's Gambit, Open Sicilian</span></div>
+    </div>
+
+    <div class="gm-card">
+      <div class="gm-header"><div class="gm-avatar">🐍</div><div class="gm-meta"><strong>Anatoly Karpov</strong><span>World Champion 1975–1985 · Rusia</span></div></div>
+      <div class="gm-peak">
+        <div class="gm-stat"><span class="val">2780</span><span class="lbl">Peak Rating</span></div>
+        <div class="gm-stat"><span class="val">Posisional</span><span class="lbl">Gaya</span></div>
+        <div class="gm-stat"><span class="val">"Boa"</span><span class="lbl">Julukan</span></div>
+      </div>
+      <div class="gm-style"><strong>Karakteristik:</strong> Dikenal sebagai "Boa constrictor" — perlahan mencekik lawan tanpa serangan frontal yang kasar. Karpov adalah maestro posisional yang mengakumulasi keunggulan kecil demi kecil hingga lawan tidak punya ruang napas.<br><br><span class="gm-opening">Favorit: Caro-Kann, English Opening</span></div>
+    </div>
+
+    <div class="gm-card">
+      <div class="gm-header"><div class="gm-avatar">🧠</div><div class="gm-meta"><strong>Bobby Fischer</strong><span>World Champion 1972–1975 · USA</span></div></div>
+      <div class="gm-peak">
+        <div class="gm-stat"><span class="val">2785</span><span class="lbl">Peak Rating</span></div>
+        <div class="gm-stat"><span class="val">Universal</span><span class="lbl">Gaya</span></div>
+        <div class="gm-stat"><span class="val">"The Legend"</span><span class="lbl">Julukan</span></div>
+      </div>
+      <div class="gm-style"><strong>Karakteristik:</strong> Simbol kejeniusan catur murni. Fischer bermain dengan kejelasan absolut di semua fase. Ia meraih 20 kemenangan beruntun di turnamen Candidates — rekor yang belum pernah terulang. Sangat konsisten dengan 1.e4 sebagai putih.<br><br><span class="gm-opening">Favorit: 1. e4 — selalu dan hanya 1. e4</span></div>
+    </div>
+
+    <div class="gm-card">
+      <div class="gm-header"><div class="gm-avatar">⚡</div><div class="gm-meta"><strong>Hikaru Nakamura</strong><span>Super-GM Aktif · Amerika Serikat</span></div></div>
+      <div class="gm-peak">
+        <div class="gm-stat"><span class="val">2794</span><span class="lbl">Peak Rating</span></div>
+        <div class="gm-stat"><span class="val">Taktis</span><span class="lbl">Gaya</span></div>
+        <div class="gm-stat"><span class="val">#1 Blitz</span><span class="lbl">Prestasi</span></div>
+      </div>
+      <div class="gm-style"><strong>Karakteristik:</strong> Raja catur cepat (blitz/bullet) dan streamer catur paling populer di dunia. Gaya sangat taktis dan sering memilih jalur tidak konvensional. Nakamura membuktikan bahwa catur online dan streaming bisa berdampingan dengan kompetisi elit.<br><br><span class="gm-opening">Favorit: Sicilian Najdorf, King's Indian</span></div>
+    </div>
+
+    <div class="gm-card">
+      <div class="gm-header"><div class="gm-avatar">🌊</div><div class="gm-meta"><strong>Ding Liren</strong><span>World Champion 2023– · Tiongkok</span></div></div>
+      <div class="gm-peak">
+        <div class="gm-stat"><span class="val">2806</span><span class="lbl">Peak Rating</span></div>
+        <div class="gm-stat"><span class="val">Solid</span><span class="lbl">Gaya</span></div>
+        <div class="gm-stat"><span class="val">2023 WC</span><span class="lbl">Prestasi</span></div>
+      </div>
+      <div class="gm-style"><strong>Karakteristik:</strong> Juara Dunia 2023 yang mengalahkan Nepomniachtchi di tiebreak dramatis. Ding bermain dengan soliditas dan kedalaman posisional, namun juga bisa sangat taktis ketika situasi menuntut. Ikon kebangkitan catur Asia.<br><br><span class="gm-opening">Favorit: Queen's Gambit, Petroff Defense</span></div>
+    </div>
+
+    <div class="gm-card">
+      <div class="gm-header"><div class="gm-avatar">🇮🇩</div><div class="gm-meta"><strong>Utut Adianto</strong><span>Grandmaster · Indonesia</span></div></div>
+      <div class="gm-peak">
+        <div class="gm-stat"><span class="val">2617</span><span class="lbl">Peak Rating</span></div>
+        <div class="gm-stat"><span class="val">Posisional</span><span class="lbl">Gaya</span></div>
+        <div class="gm-stat"><span class="val">Legenda ID</span><span class="lbl">Status</span></div>
+      </div>
+      <div class="gm-style"><strong>Karakteristik:</strong> Ikon catur Indonesia dan salah satu GM Asia Tenggara pertama yang bersaing di level elite dunia. Gaya posisional yang sangat solid dan sabar. Memberikan inspirasi bagi jutaan pecatur Indonesia dan menjadi fondasi perkembangan catur nasional.<br><br><span class="gm-opening">Favorit: Queen's Indian, Slav Defense</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>♟ <span>Catur Masterclass E-Book</span> — Dibuat untuk menguasai permainan tertua dan paling dalam di dunia</p>
+</footer>
+</main>
+
+<script>
+// ── ANTI ZOOM — COMPREHENSIVE ──
+// 1. Block Ctrl+scroll (mouse wheel zoom)
+window.addEventListener('wheel', e => { if(e.ctrlKey) e.preventDefault(); }, { passive:false });
+document.addEventListener('wheel', e => { if(e.ctrlKey) e.preventDefault(); }, { passive:false });
+
+// 2. Block keyboard zoom: Ctrl +, Ctrl -, Ctrl =, Ctrl 0, Numpad +/-
+document.addEventListener('keydown', e => {
+  if(e.ctrlKey || e.metaKey) {
+    if(['+','-','=','0','_','+'].includes(e.key) ||
+       e.code==='Equal' || e.code==='Minus' ||
+       e.code==='Digit0' || e.code==='NumpadAdd' ||
+       e.code==='NumpadSubtract' || e.code==='Numpad0') {
+      e.preventDefault();
+      return false;
+    }
+  }
+});
+
+// 3. Block touch pinch zoom (mobile)
+document.addEventListener('touchstart', e => { if(e.touches.length > 1) e.preventDefault(); }, { passive:false });
+document.addEventListener('touchmove', e => { if(e.touches.length > 1) e.preventDefault(); }, { passive:false });
+document.addEventListener('gesturestart', e => e.preventDefault(), { passive:false });
+document.addEventListener('gesturechange', e => e.preventDefault(), { passive:false });
+document.addEventListener('gestureend', e => e.preventDefault(), { passive:false });
+
+// 4. Force reset zoom if somehow user zoomed (e.g. browser menu)
+function resetZoom() {
+  const scale = window.devicePixelRatio / (window.outerWidth / window.innerWidth);
+  if(Math.abs(window.outerWidth / window.innerWidth - 1) > 0.05) {
+    document.querySelector('meta[name=viewport]').setAttribute('content',
+      'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no');
+  }
+}
+window.addEventListener('resize', resetZoom);
+
+// ── CHESS DECO ──
+const deco = document.getElementById('chessDeco');
+for(let r=0;r<8;r++) for(let c=0;c<8;c++){const d=document.createElement('div');if((r+c)%2===1)d.classList.add('dark');deco.appendChild(d);}
+
+// ── WIKIMEDIA PIECE IMAGES ──
+const WIKI = {
+  K:'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
+  Q:'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
+  R:'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
+  B:'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg',
+  N:'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
+  P:'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
+  k:'https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg',
+  q:'https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg',
+  r:'https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg',
+  b:'https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg',
+  n:'https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg',
+  p:'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg',
+};
+
+function fenToBoard(fen){
+  const board=[];
+  for(const row of fen.split(' ')[0].split('/')){
+    const r=[];
+    for(const ch of row) isNaN(ch)?r.push(ch):Array.from({length:+ch},()=>r.push(null));
+    board.push(r);
+  }
+  return board;
+}
+
+function renderBoard(fen){
+  const board=fenToBoard(fen);
+  const sz=280, sq=sz/8;
+  const L='#f0d9b5', D='#b58863';
+  let svg=`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${sz} ${sz}" width="100%" height="100%">`;
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) svg+=`<rect x="${c*sq}" y="${r*sq}" width="${sq}" height="${sq}" fill="${(r+c)%2===0?L:D}"/>`;
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){const p=board[r][c];if(p&&WIKI[p]) svg+=`<image href="${WIKI[p]}" x="${c*sq}" y="${r*sq}" width="${sq}" height="${sq}"/>`;}
+  svg+=`<rect x="0" y="0" width="${sz}" height="${sz}" fill="none" stroke="#222" stroke-width="1.5"/></svg>`;
+  return svg;
+}
+
+// ── OPENINGS DATA ──
+const openings=[
+  {cat:'e4',num:1,name:'Ruy Lopez',notation:'1.e4 e5 2.Nf3 Nc6 3.Bb5',fen:'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',desc:'Membidik Kuda c6 untuk menekan pusat hitam secara posisional. Favorit para juara dunia sepanjang masa.'},
+  {cat:'e4',num:2,name:'Italian Game',notation:'1.e4 e5 2.Nf3 Nc6 3.Bc4',fen:'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',desc:'Serangan agresif klasik membidik petak lemah f7. Populer kembali di era modern dengan variasi Giuoco Piano.'},
+  {cat:'e4',num:3,name:'Sicilian Defense',notation:'1.e4 c5',fen:'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2',desc:'Respon paling populer melawan 1.e4. Menciptakan permainan tajam dan asimetris — hitam bermain untuk menang, bukan hanya seri.'},
+  {cat:'e4',num:4,name:'French Defense',notation:'1.e4 e6 2.d4 d5',fen:'rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3',desc:'Pertahanan solid dengan rantai pion kuat. Gajah terang hitam sering pasif — tantangan utama pemain Prancis.'},
+  {cat:'e4',num:5,name:'Caro-Kann Defense',notation:'1.e4 c6 2.d4 d5',fen:'rnbqkbnr/pp2pppp/2p5/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3',desc:'Mirip French tapi gajah terang hitam aktif. Solid, posisional, dan sangat populer di level GM.'},
+  {cat:'e4',num:6,name:'Pirc Defense',notation:'1.e4 d6 2.d4 Nf6 3.Nc3 g6',fen:'rnbqkb1r/ppp1pp1p/3p1np1/8/3PP3/2N5/PPP2PPP/R1BQKBNR b KQkq - 0 3',desc:'Sistem hipermodern — biarkan putih kuasai pusat, lalu serang dari jauh dengan fianchetto Gajah g7.'},
+  {cat:'e4',num:7,name:'Modern Defense',notation:'1.e4 g6',fen:'rnbqk1nr/ppppppbp/6p1/8/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 1 2',desc:'Fianchetto Gajah g7 tanpa langkah d6 awal. Fleksibel dan penuh jebakan bagi pemain yang tidak tahu teorinya.'},
+  {cat:'e4',num:8,name:"Alekhine's Defense",notation:'1.e4 Nf6',fen:'rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2',desc:'Provokasi total — undang pion putih maju terus hingga overextended dan bisa diserang balik.'},
+  {cat:'e4',num:9,name:'Scandinavian Defense',notation:'1.e4 d5',fen:'rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',desc:'Langsung merusak pusat putih di langkah pertama. Sederhana dan penuh jebakan untuk yang tidak tahu teorinya.'},
+  {cat:'e4',num:10,name:'Vienna Game',notation:'1.e4 e5 2.Nc3',fen:'rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2',desc:'Alternatif dari 2.Nf3. Lebih tenang namun penuh jebakan taktis dan pilihan gaya yang fleksibel.'},
+  {cat:'e4',num:11,name:"King's Gambit",notation:'1.e4 e5 2.f4',fen:'rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq - 0 2',desc:'Pengorbanan radikal demi dominasi pusat dan serangan kilat. Era Romantik catur di abad ke-19.'},
+  {cat:'e4',num:12,name:'Scotch Game',notation:'1.e4 e5 2.Nf3 Nc6 3.d4',fen:'r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq - 0 3',desc:'Paksa pertukaran di pusat untuk mengaktifkan gajah. Dipopulerkan kembali oleh Kasparov.'},
+  {cat:'e4',num:13,name:'Philidor Defense',notation:'1.e4 e5 2.Nf3 d6',fen:'rnbqkbnr/ppp2ppp/3p4/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3',desc:'Solid dan solid. Opening tertua dalam literatur catur, lahir dari analisis François-André Philidor.'},
+  {cat:'e4',num:14,name:'Petrov Defense',notation:'1.e4 e5 2.Nf3 Nf6',fen:'rnbqkb1r/pppp1ppp/5n2/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3',desc:'Strategi simetris untuk mematikan inisiatif putih. Banyak dipakai saat butuh hasil seri atau melawan lawan yang lebih kuat.'},
+  {cat:'e4',num:15,name:'Evans Gambit',notation:'1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.b4',fen:'r1bqk1nr/pppp1ppp/2n5/2b1p3/1PB1P3/5N2/P1PP1PPP/RNBQK2R b KQkq - 0 4',desc:'Pengorbanan pion sayap demi kontrol pusat masif. Favorit era Romantik dan Kasparov.'},
+  {cat:'e4',num:16,name:'Two Knights Defense',notation:'3...Nf6',fen:'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',desc:'Bermain aktif dan agresif. Mengarah pada serangan Fried Liver yang sangat tajam dan kompleks.'},
+  {cat:'e4',num:17,name:'Center Game',notation:'1.e4 e5 2.d4 exd4 3.Qxd4',fen:'rnbqkbnr/pppp1ppp/8/8/3QP3/8/PPP2PPP/RNB1KBNR b KQkq - 0 3',desc:'Menteri keluar terlalu awal — mudah diusir dan membuang tempo, tapi punya beberapa jebakan menarik.'},
+  {cat:'e4',num:18,name:"Bishop's Opening",notation:'1.e4 e5 2.Bc4',fen:'rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2',desc:'Fokus ke petak f7 tanpa mengembangkan Kuda terlebih dahulu. Fleksibel dan sering transisi ke Italian.'},
+  {cat:'d4',num:19,name:"Queen's Gambit",notation:'1.d4 d5 2.c4',fen:'rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq - 0 2',desc:'Opening posisional paling fundamental. Pion c4 "ditawarkan" untuk mendapatkan keunggulan pusat.'},
+  {cat:'d4',num:20,name:"Queen's Gambit Declined",notation:'2...e6',fen:'rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3',desc:'Standar keamanan tertinggi bagi hitam. Solid tapi membutuhkan pengetahuan teori yang sangat dalam.'},
+  {cat:'d4',num:21,name:"Queen's Gambit Accepted",notation:'2...dxc4',fen:'rnbqkbnr/ppp1pppp/8/8/2pP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3',desc:'Terima pion sementara untuk mendapatkan aktivitas dan kemudahan pengembangan.'},
+  {cat:'d4',num:22,name:"King's Indian Defense",notation:'1.d4 Nf6 2.c4 g6',fen:'rnbqk2r/ppppppbp/5np1/8/2PP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 2 4',desc:'Senjata favorit Kasparov dan Fischer. Biarkan putih bangun pusat besar, lalu ledakkan dengan ...e5 atau ...c5.'},
+  {cat:'d4',num:23,name:'Nimzo-Indian Defense',notation:'3...Bb4',fen:'rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 2 4',desc:'Salah satu pertahanan terbaik melawan 1.d4. Membatasi manuver Kuda putih dan mengontrol pusat secara tidak langsung.'},
+  {cat:'d4',num:24,name:"Queen's Indian Defense",notation:'3...b6',fen:'rnbqkb1r/p1pppppp/1p3n2/8/2PP4/5N2/PP2PPPP/RNBQKB1R w KQkq - 0 4',desc:'Kontrol petak e4 via gajah di b7. Hipermodern dan sangat solid di tangan yang tepat.'},
+  {cat:'d4',num:25,name:'Bogo-Indian Defense',notation:'3...Bb4+',fen:'rnbqk2r/pppp1ppp/4pn2/8/1bPP4/5N2/PP2PPPP/RNBQKB1R w KQkq - 2 4',desc:'Variasi yang memicu pertukaran Gajah untuk menyederhanakan posisi dan menghindari kompleksitas.'},
+  {cat:'d4',num:26,name:'Grunfeld Defense',notation:'3...d5',fen:'rnbqkb1r/ppp1pp1p/5np1/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 0 4',desc:'Biarkan putih punya pusat pion besar lalu serang habis-habisan. Favorit Kasparov dan Spassky.'},
+  {cat:'d4',num:27,name:'Slav Defense',notation:'2...c6',fen:'rnbqkbnr/pp2pppp/2p5/3p4/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3',desc:'Sangat solid melawan Queen\'s Gambit tanpa mengunci gajah terang. Salah satu pertahanan paling populer.'},
+  {cat:'d4',num:28,name:'Dutch Defense',notation:'1.d4 f5',fen:'rnbqkbnr/ppppp1pp/8/5p2/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2',desc:'Kuasai e4 secara agresif. Ada tiga varian utama: Stonewall, Classical, dan Leningrad Dutch.'},
+  {cat:'d4',num:29,name:'Benoni Defense',notation:'1.d4 Nf6 2.c4 c5',fen:'rnbqkb1r/pp1ppppp/5n2/2p5/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3',desc:'Menciptakan mayoritas pion sayap raja yang berbahaya. Tajam dan dinamis — untuk pemain yang suka bermain aktif.'},
+  {cat:'d4',num:30,name:'Benko Gambit',notation:'3...b5',fen:'rnbqkb1r/p2ppppp/5n2/1ppP4/2P5/8/PP2PPPP/RNBQKBNR w KQkq - 0 4',desc:'Korbankan pion demi tekanan lajur a dan b yang tiada henti. Senjata favorit untuk menekan jangka panjang.'},
+  {cat:'d4',num:31,name:'London System',notation:'2.Bf4',fen:'rnbqkbnr/ppp1pppp/8/3p4/3P1B2/8/PP2PPPP/RN1QKBNR b KQkq - 1 2',desc:'Sistem otomatis yang sangat stabil. Tidak butuh hafalan teori banyak — cocok untuk semua level.'},
+  {cat:'d4',num:32,name:'Trompowsky Attack',notation:'2.Bg5',fen:'rnbqkb1r/pppppppp/5n2/6B1/3P4/8/PPP1PPPP/RN1QKBNR b KQkq - 2 2',desc:'Mengejutkan lawan dan menghindari teori utama. Sering menghasilkan posisi tidak biasa yang membingungkan.'},
+  {cat:'flank',num:33,name:'English Opening',notation:'1.c4',fen:'rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1',desc:'Kontrol pusat dari sayap menteri. Sangat fleksibel — bisa transisi ke hampir semua sistem berbeda.'},
+  {cat:'flank',num:34,name:'Reti Opening',notation:'1.Nf3',fen:'rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1',desc:'Langkah modern yang mengundang lawan menunjukkan strukturnya. Sangat hipermodern dan fleksibel.'},
+  {cat:'flank',num:35,name:"Bird's Opening",notation:'1.f4',fen:'rnbqkbnr/pppppppp/8/8/5P2/8/PPPPP1PP/RNBQKBNR b KQkq - 0 1',desc:'Kuasai petak e5 secara agresif. Bisa berlanjut ke Dutch Attack yang tajam atau From\'s Gambit yang berbahaya.'},
+];
+
+function renderOpenings(filter){
+  const grid=document.getElementById('openingGrid');
+  grid.innerHTML='';
+  (filter==='all'?openings:openings.filter(o=>o.cat===filter)).forEach(op=>{
+    const card=document.createElement('div');
+    card.className='opening-card';
+    const catLabel=op.cat==='e4'?"King's Pawn · 1.e4":op.cat==='d4'?"Queen's Pawn · 1.d4":"Flank Opening";
+    card.innerHTML=`
+      <div class="chess-svg-wrap">${renderBoard(op.fen)}</div>
+      <div class="opening-info">
+        <div class="opening-tag">${String(op.num).padStart(2,'0')} · ${catLabel}</div>
+        <h4>${op.name}</h4>
+        <div class="opening-notation">${op.notation}</div>
+        <p class="opening-desc">${op.desc}</p>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function filterOpening(cat,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderOpenings(cat);
+}
+
+renderOpenings('all');
+
+// ── STICKY TABS SCROLL ──
+function scrollToSection(id,tab){
+  document.getElementById(id).scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+}
+
+// ── NAV & TABS AUTO-HIGHLIGHT ──
+const sectionIds=['bab0','bab1','bab2','bab3','bab4','bab5','bab6','bab7'];
+const navItems=document.querySelectorAll('.nav-item');
+const catTabs=document.querySelectorAll('.cat-tab');
+
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      const idx=sectionIds.indexOf(id);
+      navItems.forEach((n,i)=>{n.classList.toggle('active',i===idx+1);});
+      if(idx>=0) catTabs.forEach((t,i)=>{t.classList.toggle('active',i===idx);});
+    }
+  });
+},{threshold:0.25});
+
+sectionIds.forEach(id=>{const el=document.getElementById(id);if(el)obs.observe(el);});
+</script>
+</body>
+</html>
