@@ -254,8 +254,7 @@ const PST={
   k:[-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-20,-30,-30,-40,-40,-30,-30,-20,-10,-20,-20,-20,-20,-20,-20,-10,20,20,0,0,0,0,20,20,20,30,10,0,0,10,30,20]
 };
 
-// Load chess.js inside worker
-importScripts('https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js');
+// chess.js will be fetched and embedded — NO importScripts needed
 
 function evalG(g){
   if(g.in_checkmate())return g.turn()==='b'?100000:-100000;
@@ -326,11 +325,27 @@ onmessage=function(e){
 };
 `;
 
-let worker=null,chosenElo=1500;
+let worker=null,chosenElo=1500,chessJsSrc=null;
 
-function initWorker(){
+// Fetch chess.js once, embed into worker blob — avoids ALL importScripts/CORS issues
+async function initWorker(){
   if(worker)try{worker.terminate();}catch(e){}
-  const blob=new Blob([ENGINE_SRC],{type:'application/javascript'});
+  worker=null;
+
+  // Fetch chess.js source if not cached
+  if(!chessJsSrc){
+    try{
+      const r=await fetch('https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js');
+      chessJsSrc=await r.text();
+    }catch(e){
+      console.error('Failed to fetch chess.js',e);
+      return;
+    }
+  }
+
+  // Embed chess.js + engine into one blob — no importScripts needed
+  const fullSrc=chessJsSrc+'\n'+ENGINE_SRC;
+  const blob=new Blob([fullSrc],{type:'application/javascript'});
   worker=new Worker(URL.createObjectURL(blob));
   worker.onerror=function(e){
     console.error('Worker error',e);
@@ -341,10 +356,6 @@ function initWorker(){
 function askBot(callback){
   if(!game)return;
 
-  // Recreate worker if dead
-  if(!worker)initWorker();
-
-  // Natural delay (human-feel)
   const elo=chosenElo;
   let minMs=400;
   if(elo<800)minMs=200+Math.random()*400;
@@ -353,14 +364,22 @@ function askBot(callback){
 
   const start=Date.now();
 
-  worker.onmessage=function(e){
-    const{uci}=e.data;
-    const elapsed=Date.now()-start;
-    const wait=Math.max(0,minMs-elapsed);
-    setTimeout(()=>callback(uci),wait);
-  };
+  function sendToWorker(){
+    if(!worker){
+      // Worker not ready yet — retry in 200ms
+      setTimeout(()=>sendToWorker(),200);
+      return;
+    }
+    worker.onmessage=function(e){
+      const{uci}=e.data;
+      const elapsed=Date.now()-start;
+      const wait=Math.max(0,minMs-elapsed);
+      setTimeout(()=>callback(uci),wait);
+    };
+    worker.postMessage({fen:game.fen(),elo});
+  }
 
-  worker.postMessage({fen:game.fen(),elo});
+  sendToWorker();
 }
 
 // ── GAME STATE ──
@@ -528,14 +547,14 @@ function goBack(){
 }
 
 // ── START ──
-document.getElementById('startBtn').onclick=function(){
+document.getElementById('startBtn').onclick=async function(){
   chosenElo=+selSlider.value;
   const t=getTier(chosenElo);
   document.getElementById('botRt').textContent='ELO '+chosenElo+' · '+t.lbl;
   document.getElementById('scrSel').classList.add('off');document.getElementById('scrGame').classList.remove('off');
   game=new Chess();sel=null;targets=[];lastMv=null;flipped=false;thinking=false;over=false;
-  initWorker();
   updMoves();updCaps();renderBoard();setTurns('w');setSt('Giliranmu — Putih memulai','g');
+  await initWorker();
 };
 
 window.addEventListener('resize',renderBoard);
