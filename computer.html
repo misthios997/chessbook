@@ -3,233 +3,332 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-<title>Lawan Bot Stockfish</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-<!-- Chess.js -->
+<title>Lawan Bot — Catur</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-<!-- Stockfish as normal script (no Worker needed) -->
-<script src="https://cdn.jsdelivr.net/npm/stockfish@10.0.2/stockfish.js"></script>
-
 <style>
+:root{
+  --bg:#1e2129;
+  --panel:#13161b;
+  --panel2:#1a1e25;
+  --border:#2a2f3a;
+  --gold:#c9a84c;--gold2:#e8c96a;
+  --text:#e8e4dc;--muted:#7a8090;
+  --green:#5fa65a;--red:#c0392b;
+  --sq-l:#f0d9b5;--sq-d:#b58863;
+  --sel:rgba(20,85,30,.9);
+  --last:rgba(205,210,106,.5);
+  --dot:rgba(0,0,0,.2);
+}
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;font-family:'DM Sans',sans-serif;background:#0d0f12;color:#e8e4dc;overflow:hidden;}
-.screen{position:fixed;inset:0;overflow-y:auto;}
-.hidden{display:none!important;}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
 
-/* ── SELECT ── */
-#sel{background:#0d0f12;display:flex;align-items:center;justify-content:center;padding:20px;}
-.sc{width:100%;max-width:440px;display:flex;flex-direction:column;gap:18px;}
-.s-hero{text-align:center;}
-.s-icon{font-size:50px;display:block;margin-bottom:10px;}
-.s-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;background:linear-gradient(90deg,#c9a84c,#e8c96a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.s-sub{color:#7a8090;font-size:13px;margin-top:5px;}
-.ec{background:#13161b;border:1px solid #252932;border-radius:14px;padding:22px;}
-.et{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.en{font-family:'JetBrains Mono',monospace;font-size:42px;color:#e8c96a;line-height:1;}
-.eb{font-size:10px;padding:3px 12px;border-radius:100px;border:1px solid;display:inline-block;margin-top:6px;}
-input[type=range]{width:100%;-webkit-appearance:none;height:5px;border-radius:3px;outline:none;cursor:pointer;background:linear-gradient(to right,#c9a84c var(--p,47%),#252932 var(--p,47%));}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;background:#e8c96a;border:2px solid #0d0f12;box-shadow:0 2px 8px rgba(0,0,0,.5);}
-.em{display:flex;justify-content:space-between;margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#7a8090;}
-.plbl{font-size:10px;color:#7a8090;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
-.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.pb{background:#13161b;border:1px solid #252932;border-radius:9px;padding:10px 6px;cursor:pointer;text-align:center;transition:all .2s;color:#e8e4dc;font-family:'DM Sans',sans-serif;}
-.pb:hover{transform:translateY(-2px);}
-.pb-i{font-size:15px;display:block;margin-bottom:3px;}
-.pb-l{font-size:11px;font-weight:500;display:block;}
-.pb-e{font-family:'JetBrains Mono',monospace;font-size:10px;display:block;margin-top:2px;}
-.db{background:#13161b;border:1px solid #252932;border-radius:9px;padding:12px 15px;font-size:13px;color:#7a8090;line-height:1.6;min-height:54px;}
-.stbtn{width:100%;padding:17px;background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0d0f12;font-family:'Playfair Display',serif;font-size:18px;font-weight:900;border:none;border-radius:11px;cursor:pointer;transition:all .2s;}
-.stbtn:hover{filter:brightness(1.09);transform:translateY(-2px);}
+/* ── SCREENS ── */
+.scr{position:fixed;inset:0;overflow-y:auto;}
+.off{display:none!important;}
 
-/* ── GAME ── */
-#game{background:#0d0f12;display:flex;flex-direction:column;}
-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:#13161b;border-bottom:1px solid #252932;}
-.bk{color:#7a8090;font-size:12.5px;padding:6px 12px;border:1px solid #252932;border-radius:7px;cursor:pointer;background:none;transition:all .2s;}
-.bk:hover{color:#c9a84c;border-color:#c9a84c;}
-.ht{font-family:'Playfair Display',serif;font-size:16px;font-weight:900;background:linear-gradient(90deg,#c9a84c,#e8c96a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.hb{font-size:11px;padding:3px 10px;border-radius:100px;border:1px solid #252932;color:#7a8090;}
-.gb{flex:1;display:flex;overflow:hidden;}
-.lp{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;gap:9px;min-width:0;}
-.sb{width:100%;max-width:490px;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:#13161b;border:1px solid #252932;border-radius:9px;}
-.sd{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.sd.g{background:#27ae60;box-shadow:0 0 6px #27ae60;}
-.sd.r{background:#c0392b;box-shadow:0 0 6px #c0392b;}
-.sd.o{background:#c9a84c;box-shadow:0 0 6px #c9a84c;}
-.sd.gr{background:#7a8090;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
-.pulse{animation:pulse 1s infinite;}
-#bw{width:100%;max-width:490px;}
-.sq{position:relative;cursor:pointer;user-select:none;}
-.sq.lt{background:#f0d9b5;}.sq.dk{background:#b58863;}
-.sq.sel{background:rgba(106,168,79,.88)!important;}
-.sq.lf{background:rgba(255,214,0,.4)!important;}
-.sq.lt2{background:rgba(255,214,0,.4)!important;}
-.sq.sel.lf,.sq.sel.lt2{background:rgba(106,168,79,.88)!important;}
-.sq.chk{background:rgba(192,57,43,.65)!important;}
-.sq img{width:100%;height:100%;display:block;pointer-events:none;-webkit-user-drag:none;}
-.sq.dot::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30%;height:30%;background:rgba(0,0,0,.22);border-radius:50%;pointer-events:none;z-index:1;}
-.sq.ring::after{content:'';position:absolute;inset:0;border:3.5px solid rgba(106,168,79,.85);pointer-events:none;z-index:1;}
-.rp{width:246px;flex-shrink:0;background:#13161b;border-left:1px solid #252932;display:flex;flex-direction:column;overflow:hidden;}
-.pt{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:1px solid #252932;}
-.pc{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
-.pc.w{background:#f0d9b5;border:1px solid rgba(0,0,0,.2);}
-.pc.b{background:#1a1a1a;border:1px solid rgba(255,255,255,.2);}
-.pn{font-size:13px;font-weight:500;}.ps{font-size:11px;color:#7a8090;}
-.cp{padding:5px 13px;min-height:26px;display:flex;flex-wrap:wrap;gap:2px;align-items:center;border-bottom:1px solid #252932;}
-.cp span{font-size:14px;opacity:.75;}
-.cadv{font-family:'JetBrains Mono',monospace;font-size:11px;color:#c9a84c;margin-left:3px;}
-.rs{padding:11px 13px;border-bottom:1px solid #252932;}
-.rst{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7a8090;margin-bottom:9px;}
-.cc{display:flex;flex-direction:column;gap:6px;}
-.btn{padding:8px 12px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #252932;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;}
-.bp{background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0d0f12;border-color:transparent;font-weight:700;}
-.bp:hover{filter:brightness(1.08);transform:translateY(-1px);}
-.bs{background:transparent;color:#e8e4dc;}
-.bs:hover{background:#1a1e25;border-color:#c9a84c;color:#c9a84c;}
-.bd{background:transparent;color:#c0392b;border-color:rgba(192,57,43,.3);}
-.bd:hover{background:rgba(192,57,43,.1);}
-.mh{flex:1;overflow-y:auto;padding:7px 13px;}
-.mh::-webkit-scrollbar{width:3px;}
-.mh::-webkit-scrollbar-thumb{background:#252932;}
-#ml{display:flex;flex-direction:column;gap:1px;}
-.mr{display:grid;grid-template-columns:22px 1fr 1fr;gap:3px;padding:2px 3px;border-radius:4px;}
-.mr:hover{background:#1a1e25;}
-.mn{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a8090;}
-.mw,.mb2{font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 4px;border-radius:4px;}
-.cur{background:rgba(201,168,76,.2);color:#e8c96a;}
-.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:900;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
-.mo.show{display:flex;}
-.mc{background:#13161b;border:1px solid #252932;border-radius:16px;padding:34px 40px;text-align:center;max-width:320px;width:90%;}
-@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-.mc{animation:pop .25s ease;}
-.mi{font-size:46px;margin-bottom:12px;}
-.mt2{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;margin-bottom:7px;}
-.ms{color:#7a8090;font-size:13px;margin-bottom:22px;line-height:1.5;}
-.mb3{display:flex;flex-direction:column;gap:8px;}
-#pm .mc{padding:22px 26px;}
-#pm h3{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:14px;}
-.pp{display:flex;gap:9px;justify-content:center;}
-.ppc{width:56px;height:56px;background:#1a1e25;border:2px solid #252932;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-.ppc:hover{border-color:#c9a84c;transform:scale(1.07);}
-.ppc img{width:42px;height:42px;}
-@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
-.d1{animation:blink 1.2s 0s infinite both;}
-.d2{animation:blink 1.2s .2s infinite both;}
-.d3{animation:blink 1.2s .4s infinite both;}
-@media(max-width:640px){.rp{display:none;}}
+/* ══════════ SELECT SCREEN ══════════ */
+#scrSel{display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);}
+.sel-wrap{width:100%;max-width:440px;display:flex;flex-direction:column;gap:18px;}
+.sel-hero{text-align:center;}
+.sel-hero .icon{font-size:52px;display:block;margin-bottom:10px;}
+.sel-hero h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sel-hero p{color:var(--muted);font-size:13px;margin-top:5px;}
+
+.elo-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;}
+.elo-box-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px;}
+.elo-num{font-family:'JetBrains Mono',monospace;font-size:44px;color:var(--gold2);line-height:1;}
+.elo-unit{font-size:12px;color:var(--muted);margin-left:4px;margin-bottom:6px;}
+.tier-pill{font-size:10px;padding:4px 13px;border-radius:100px;border:1px solid;display:inline-block;}
+input[type=range]{width:100%;-webkit-appearance:none;height:5px;border-radius:3px;outline:none;cursor:pointer;background:linear-gradient(to right,var(--gold) var(--p,47%),var(--border) var(--p,47%));}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold2);border:2px solid var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.6);}
+.elo-marks{display:flex;justify-content:space-between;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);}
+
+.presets-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.preset{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px 5px;cursor:pointer;text-align:center;transition:all .18s;color:var(--text);}
+.preset:hover{transform:translateY(-2px);}
+.preset .pi{font-size:16px;display:block;margin-bottom:3px;}
+.preset .pl{font-size:11px;font-weight:500;display:block;}
+.preset .pe{font-family:'JetBrains Mono',monospace;font-size:10px;display:block;margin-top:2px;}
+
+.desc-box{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:12px 15px;font-size:13px;color:var(--muted);line-height:1.6;min-height:52px;}
+
+.start-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0d0f12;font-family:'Playfair Display',serif;font-size:18px;font-weight:900;border:none;border-radius:11px;cursor:pointer;transition:all .2s;}
+.start-btn:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.35);}
+
+/* ══════════ GAME SCREEN ══════════ */
+#scrGame{display:flex;flex-direction:column;background:var(--bg);}
+
+/* top bar */
+.topbar{flex-shrink:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--panel);border-bottom:1px solid var(--border);}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.back-btn{font-size:12px;color:var(--muted);padding:6px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:none;transition:all .2s;}
+.back-btn:hover{color:var(--gold);border-color:var(--gold);}
+.game-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:900;background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sf-badge{font-size:10px;padding:2px 10px;border-radius:100px;border:1px solid var(--border);color:var(--muted);}
+
+/* body */
+.game-body{flex:1;display:flex;overflow:hidden;}
+
+/* board area */
+.board-area{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;min-width:0;}
+.board-wrap{display:flex;gap:4px;}
+.coord-ranks{display:flex;flex-direction:column;justify-content:space-around;padding:3px 0;}
+.coord-files{display:flex;justify-content:space-around;padding:0 3px;margin-top:2px;}
+.coord-ranks span,.coord-files span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);user-select:none;}
+.board-col{display:flex;flex-direction:column;}
+
+#board{display:grid;grid-template-columns:repeat(8,1fr);box-shadow:0 8px 40px rgba(0,0,0,.7),0 0 0 2px rgba(0,0,0,.5);}
+.sq{position:relative;cursor:pointer;user-select:none;transition:filter .08s;}
+.sq.sl{background:var(--sq-l);}
+.sq.sd{background:var(--sq-d);}
+.sq.sel{background:var(--sel)!important;}
+.sq.last-from,.sq.last-to{background:var(--last)!important;}
+.sq.sel.last-from,.sq.sel.last-to{background:var(--sel)!important;}
+.sq.in-check{background:radial-gradient(circle,rgba(255,0,0,.9) 0%,rgba(192,57,43,.5) 70%,transparent 100%)!important;}
+.sq img{width:100%;height:100%;display:block;pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.4));}
+.sq.dot-hint::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32%;height:32%;background:rgba(0,0,0,.18);border-radius:50%;pointer-events:none;z-index:1;}
+.sq.ring-hint::after{content:'';position:absolute;inset:0;border:4px solid rgba(0,0,0,.25);pointer-events:none;z-index:1;}
+.sq:not(.sel):hover{filter:brightness(1.07);}
+
+/* right panel — Chess.com style */
+.right-panel{width:280px;flex-shrink:0;display:flex;flex-direction:column;background:var(--panel);border-left:1px solid var(--border);overflow:hidden;}
+
+/* player card */
+.player-card{padding:10px 14px;display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--border);}
+.player-card.active-turn{background:rgba(201,168,76,.05);}
+.player-info{display:flex;align-items:center;gap:10px;}
+.avatar{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:2px solid var(--border);}
+.avatar.bot{background:linear-gradient(135deg,#1a1a2e,#34495e);}
+.avatar.you{background:linear-gradient(135deg,#2c3e50,#3d5a6e);}
+.player-name{font-size:13px;font-weight:600;display:block;}
+.player-elo{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);display:block;}
+.player-status{font-size:11px;color:var(--muted);}
+.turn-indicator{width:8px;height:8px;border-radius:50%;margin-left:auto;flex-shrink:0;}
+.turn-indicator.active{background:var(--green);box-shadow:0 0 6px var(--green);}
+.turn-indicator.waiting{background:var(--muted);}
+.cap-row{display:flex;flex-wrap:wrap;gap:1px;align-items:center;min-height:22px;}
+.cap-row img{width:18px;height:18px;opacity:.85;}
+.cap-adv{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);margin-left:4px;}
+
+/* moves panel */
+.moves-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;border-bottom:1px solid var(--border);}
+.moves-header{padding:8px 14px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
+.status-inline{font-size:11px;color:var(--text);text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:6px;}
+.sdot{width:7px;height:7px;border-radius:50%;}
+.sdot.g{background:var(--green);box-shadow:0 0 5px var(--green);}
+.sdot.r{background:var(--red);}
+.sdot.o{background:var(--gold);}
+.sdot.gr{background:var(--muted);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.blink{animation:blink .8s infinite;}
+
+.moves-list{flex:1;overflow-y:auto;padding:6px 8px;}
+.moves-list::-webkit-scrollbar{width:3px;}
+.moves-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.move-row{display:grid;grid-template-columns:28px 1fr 1fr;align-items:center;border-radius:5px;overflow:hidden;}
+.move-row:hover{background:var(--panel2);}
+.move-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);padding:4px 6px;}
+.move-w,.move-b{font-family:'JetBrains Mono',monospace;font-size:12px;padding:4px 6px;cursor:default;border-radius:4px;transition:background .1s;}
+.move-w:hover,.move-b:hover{background:rgba(201,168,76,.12);}
+.move-w.hi,.move-b.hi{background:rgba(201,168,76,.2);color:var(--gold2);}
+
+/* action buttons */
+.actions{flex-shrink:0;padding:10px 12px;display:flex;flex-wrap:wrap;gap:7px;border-top:1px solid var(--border);}
+.action-btn{flex:1;min-width:60px;padding:9px 8px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--panel2);color:var(--text);}
+.action-btn .ab-icon{font-size:16px;}
+.action-btn .ab-label{font-size:10px;color:var(--muted);}
+.action-btn:hover{border-color:var(--gold);color:var(--gold);}
+.action-btn:hover .ab-label{color:var(--gold);}
+.action-btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0d0f12;border-color:transparent;}
+.action-btn.primary .ab-label{color:rgba(0,0,0,.6);}
+.action-btn.primary:hover{filter:brightness(1.08);}
+.action-btn.danger{border-color:rgba(192,57,43,.3);color:var(--red);}
+.action-btn.danger .ab-label{color:rgba(192,57,43,.6);}
+.action-btn.danger:hover{background:rgba(192,57,43,.1);border-color:var(--red);}
+
+/* modals */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.modal-bg.show{display:flex;}
+.modal-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:32px 40px;text-align:center;max-width:320px;width:90%;}
+@keyframes pop{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-card{animation:pop .22s ease;}
+.mo-icon{font-size:48px;margin-bottom:12px;}
+.mo-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;margin-bottom:7px;}
+.mo-sub{color:var(--muted);font-size:13px;margin-bottom:22px;line-height:1.5;}
+.mo-btns{display:flex;flex-direction:column;gap:8px;}
+.mo-btn{padding:10px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);transition:all .18s;}
+.mo-btn.p{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0d0f12;border-color:transparent;}
+.mo-btn.s{background:transparent;color:var(--text);}
+.mo-btn.p:hover{filter:brightness(1.08);}
+.mo-btn.s:hover{border-color:var(--gold);color:var(--gold);}
+
+/* promotion */
+#modPromo .modal-card{padding:22px 28px;}
+#modPromo h3{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:14px;}
+.promo-pieces{display:flex;gap:10px;justify-content:center;}
+.promo-piece{width:58px;height:58px;background:var(--panel2);border:2px solid var(--border);border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;}
+.promo-piece:hover{border-color:var(--gold);transform:scale(1.07);}
+.promo-piece img{width:44px;height:44px;}
+
+@media(max-width:640px){.right-panel{display:none;}}
 </style>
 </head>
 <body>
 
-<!-- SCREEN 1: SELECT ELO -->
-<div class="screen" id="sel">
-  <div class="sc">
-    <div class="s-hero">
-      <span class="s-icon">♟</span>
-      <div class="s-title">Pilih Level Bot</div>
-      <div class="s-sub">Semakin tinggi ELO, semakin susah bot bermain</div>
+<!-- ══ SCREEN 1: SELECT ELO ══ -->
+<div class="scr" id="scrSel">
+  <div class="sel-wrap">
+    <div class="sel-hero">
+      <span class="icon">♟</span>
+      <h1>Pilih Level Bot</h1>
+      <p>Semakin tinggi ELO, semakin susah bot bermain</p>
     </div>
-    <div class="ec">
-      <div class="et">
+
+    <div class="elo-box">
+      <div class="elo-box-top">
         <div>
-          <div style="font-size:10px;color:#7a8090;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Kekuatan Bot</div>
-          <div id="eBadge" class="eb">Menengah</div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Kekuatan Bot</div>
+          <div id="selTier" class="tier-pill">Menengah</div>
         </div>
-        <div style="text-align:right;">
-          <div id="eNum" class="en">1500</div>
-          <div style="font-size:11px;color:#7a8090;margin-top:3px;">ELO</div>
+        <div style="display:flex;align-items:baseline;gap:4px;">
+          <span id="selElo" class="elo-num">1500</span>
+          <span class="elo-unit">ELO</span>
         </div>
       </div>
-      <input type="range" id="eSlider" min="1" max="3200" value="1500">
-      <div class="em"><span>1</span><span>800</span><span>1600</span><span>2400</span><span>3200</span></div>
+      <input type="range" id="selSlider" min="1" max="3200" value="1500">
+      <div class="elo-marks"><span>1</span><span>800</span><span>1600</span><span>2400</span><span>3200</span></div>
     </div>
+
     <div>
-      <div class="plbl">Pilih Cepat</div>
-      <div class="pg" id="pg"></div>
+      <div class="presets-label">Pilih Cepat</div>
+      <div class="presets" id="presetGrid"></div>
     </div>
-    <div class="db" id="desc"></div>
-    <button class="stbtn" id="startBtn">Mulai Bermain →</button>
+
+    <div class="desc-box" id="selDesc"></div>
+    <button class="start-btn" id="startBtn">Mulai Bermain →</button>
   </div>
 </div>
 
-<!-- SCREEN 2: GAME -->
-<div class="screen hidden" id="game">
-  <header>
-    <button class="bk" onclick="goBack()">← Pilih Level</button>
-    <span class="ht">vs Stockfish</span>
-    <span class="hb" id="hBadge">ELO 1500</span>
-  </header>
-  <div class="gb">
-    <div class="lp">
-      <div class="sb" style="max-width:490px;">
-        <div style="display:flex;align-items:center;gap:9px;">
-          <div class="sd gr pulse" id="dot"></div>
-          <span id="slbl" style="font-size:13px;font-weight:500;">Memuat engine...</span>
-        </div>
-        <span id="mvc" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#7a8090;"></span>
-      </div>
-      <div id="bw" style="width:100%;max-width:490px;"></div>
+<!-- ══ SCREEN 2: GAME ══ -->
+<div class="scr off" id="scrGame">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="goBack()">← Pilih Level</button>
+      <span class="game-title">Catur vs Bot</span>
     </div>
-    <div class="rp">
-      <div class="pt">
-        <div class="pc b"></div>
-        <div><div class="pn">Stockfish</div><div class="ps" id="botLbl">ELO 1500</div></div>
+    <span class="sf-badge" id="sfBadge">Memuat engine...</span>
+  </div>
+
+  <div class="game-body">
+    <!-- BOARD -->
+    <div class="board-area">
+      <div id="boardRoot"></div>
+    </div>
+
+    <!-- RIGHT PANEL (Chess.com style) -->
+    <div class="right-panel">
+
+      <!-- BOT (Black, top) -->
+      <div class="player-card" id="cardBot">
+        <div class="player-info">
+          <div class="avatar bot">🤖</div>
+          <div>
+            <span class="player-name">Stockfish</span>
+            <span class="player-elo" id="botEloLabel">ELO 1500</span>
+          </div>
+          <div class="turn-indicator waiting" id="dotBot"></div>
+        </div>
+        <div class="cap-row" id="botCaps"></div>
       </div>
-      <div class="cp" id="bcp"></div>
-      <div class="rs">
-        <div class="rst">Kontrol</div>
-        <div class="cc">
-          <button class="btn bp" onclick="newGame()">♟ Mulai Baru</button>
-          <button class="btn bs" onclick="flipBoard()">⇅ Balik Papan</button>
-          <button class="btn bs" onclick="undoMove()">↩ Undo</button>
-          <button class="btn bd" onclick="resignGame()">🏳 Menyerah</button>
+
+      <!-- MOVES LIST -->
+      <div class="moves-panel">
+        <div class="moves-header">
+          <span>Riwayat</span>
+          <div class="status-inline">
+            <div class="sdot gr" id="sDot"></div>
+            <span id="sLabel">Siap</span>
+          </div>
+        </div>
+        <div class="moves-list" id="movesList">
+          <div id="moveRows"></div>
         </div>
       </div>
-      <div class="rs" style="padding-bottom:7px;"><div class="rst">Riwayat</div></div>
-      <div class="mh"><div id="ml"></div></div>
-      <div style="border-top:1px solid #252932;">
-        <div class="cp" id="wcp"></div>
-        <div class="pt">
-          <div class="pc w"></div>
-          <div><div class="pn">Kamu</div><div class="ps">Putih</div></div>
+
+      <!-- PLAYER (White, bottom) -->
+      <div class="player-card" id="cardYou">
+        <div class="cap-row" id="youCaps"></div>
+        <div class="player-info">
+          <div class="avatar you">😊</div>
+          <div>
+            <span class="player-name">Kamu</span>
+            <span class="player-elo">Putih</span>
+          </div>
+          <div class="turn-indicator active" id="dotYou"></div>
         </div>
       </div>
+
+      <!-- ACTIONS -->
+      <div class="actions">
+        <button class="action-btn primary" onclick="newGame()">
+          <span class="ab-icon">♟</span>
+          <span class="ab-label">Baru</span>
+        </button>
+        <button class="action-btn" onclick="flipBoard()">
+          <span class="ab-icon">⇅</span>
+          <span class="ab-label">Balik</span>
+        </button>
+        <button class="action-btn" onclick="undoMove()">
+          <span class="ab-icon">↩</span>
+          <span class="ab-label">Undo</span>
+        </button>
+        <button class="action-btn danger" onclick="resignGame()">
+          <span class="ab-icon">🏳</span>
+          <span class="ab-label">Menyerah</span>
+        </button>
+      </div>
+
     </div>
   </div>
 </div>
 
 <!-- GAME OVER MODAL -->
-<div class="mo" id="om">
-  <div class="mc">
-    <div class="mi" id="oi"></div>
-    <div class="mt2" id="ot"></div>
-    <div class="ms" id="os"></div>
-    <div class="mb3">
-      <button class="btn bp" onclick="newGame();closeMo('om')">♟ Main Lagi</button>
-      <button class="btn bs" onclick="goBack()">← Pilih Level Baru</button>
+<div class="modal-bg" id="modOver">
+  <div class="modal-card">
+    <div class="mo-icon" id="moIcon"></div>
+    <div class="mo-title" id="moTitle"></div>
+    <div class="mo-sub" id="moSub"></div>
+    <div class="mo-btns">
+      <button class="mo-btn p" onclick="newGame();hideMod('modOver')">♟ Main Lagi</button>
+      <button class="mo-btn s" onclick="goBack()">← Ganti Level</button>
     </div>
   </div>
 </div>
 
 <!-- PROMOTION MODAL -->
-<div class="mo" id="pm">
-  <div class="mc">
+<div class="modal-bg" id="modPromo">
+  <div class="modal-card">
     <h3>Pilih Promosi Pion</h3>
-    <div class="pp" id="pp"></div>
+    <div class="promo-pieces" id="promoSlots"></div>
   </div>
 </div>
 
 <script>
-// ── ANTI ZOOM ──
+/* ═══════════════════════════════════════
+   ANTI ZOOM
+═══════════════════════════════════════ */
 window.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault();},{passive:false});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['Equal','Minus','Digit0','NumpadAdd','NumpadSubtract','Numpad0'].includes(e.code))e.preventDefault();});
 document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
 
-// ── PIECES ──
-const PIX={
+/* ═══════════════════════════════════════
+   ASSETS — Wikimedia piece images
+═══════════════════════════════════════ */
+const IMG={
   wK:'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
   wQ:'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
   wR:'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
@@ -244,248 +343,266 @@ const PIX={
   bP:'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg',
 };
 const UNI={wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙',bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟'};
-const VALS={p:1,n:3,b:3,r:5,q:9};
+const VALS={p:1,n:3,b:3,r:5,q:9,k:0};
 
-// ── TIERS ──
+/* ═══════════════════════════════════════
+   TIERS & PRESETS
+═══════════════════════════════════════ */
 const TIERS=[
-  {max:400, label:'🐣 Pemula',   color:'#95a5a6', desc:'Bot sangat mudah dikalahkan. Cocok untuk yang baru belajar catur.'},
-  {max:800, label:'😊 Amatir',   color:'#5dade2', desc:'Bot sering blunder. Cocok jika sudah paham aturan dasar.'},
-  {max:1200,label:'⚔️ Klub',     color:'#27ae60', desc:'Setara pemain klub lokal. Sudah cukup berbahaya.'},
-  {max:1600,label:'📚 Menengah', color:'#f39c12', desc:'Setara pemain turnamen amatir. Punya rencana yang jelas.'},
-  {max:2000,label:'🔥 Expert',   color:'#e67e22', desc:'Sangat kuat, hampir tanpa blunder. Butuh fokus penuh.'},
-  {max:2400,label:'🏅 CM',       color:'#c0392b', desc:'Level Candidate Master FIDE. Sangat sulit dikalahkan.'},
-  {max:2700,label:'👑 GM',       color:'#9b59b6', desc:'Level Grandmaster internasional. Hampir sempurna.'},
-  {max:3200,label:'🏆 Magnus',   color:'#c9a84c', desc:'Kekuatan penuh Stockfish. Hampir mustahil menang.'},
+  {max:400, lbl:'🐣 Pemula',   color:'#95a5a6', desc:'Bot sangat mudah dikalahkan. Cocok untuk yang baru belajar catur.'},
+  {max:800, lbl:'😊 Amatir',   color:'#5dade2', desc:'Bot sering blunder. Sudah paham aturan? Ini tantangan berikutnya.'},
+  {max:1200,lbl:'⚔️ Klub',     color:'#27ae60', desc:'Setara pemain klub lokal. Cukup berbahaya dan sudah punya rencana.'},
+  {max:1600,lbl:'📚 Menengah', color:'#f39c12', desc:'Setara pemain turnamen amatir. Punya rencana yang jelas, hati-hati!'},
+  {max:2000,lbl:'🔥 Expert',   color:'#e67e22', desc:'Hampir tanpa blunder. Kamu harus bermain sangat fokus untuk menang.'},
+  {max:2400,lbl:'🏅 Candidate Master',color:'#c0392b',desc:'Level CM FIDE. Sangat sulit — butuh strategi matang dan kalkulasi tajam.'},
+  {max:2700,lbl:'👑 Grandmaster',color:'#9b59b6',desc:'Level GM internasional. Hampir mustahil menang tanpa persiapan serius.'},
+  {max:3200,lbl:'🏆 Magnus',   color:'#c9a84c', desc:'Kekuatan penuh Stockfish. Setara Magnus Carlsen. Hampir tidak bisa dikalahkan.'},
 ];
 const PRESETS=[
-  {elo:100,icon:'🐣',label:'Bayi'},
-  {elo:500,icon:'😊',label:'Kasual'},
-  {elo:1000,icon:'⚔️',label:'Serius'},
-  {elo:1600,icon:'🔥',label:'Expert'},
-  {elo:2400,icon:'🏅',label:'Master'},
-  {elo:3200,icon:'🏆',label:'Magnus'},
+  {elo:100,icon:'🐣',lbl:'Bayi'},
+  {elo:500,icon:'😊',lbl:'Kasual'},
+  {elo:1000,icon:'⚔️',lbl:'Serius'},
+  {elo:1600,icon:'🔥',lbl:'Expert'},
+  {elo:2400,icon:'🏅',lbl:'Master'},
+  {elo:3200,icon:'🏆',lbl:'Magnus'},
 ];
-function getTier(v){return TIERS.find(t=>v<=t.max)||TIERS[TIERS.length-1];}
-function pct(v){return((v-1)/3199*100).toFixed(1)+'%';}
+const getTier=v=>TIERS.find(t=>v<=t.max)||TIERS[TIERS.length-1];
+const pct=v=>((v-1)/3199*100).toFixed(1)+'%';
 
-// ── SELECT SCREEN ──
-const eSlider=document.getElementById('eSlider');
+/* ═══════════════════════════════════════
+   SELECT SCREEN
+═══════════════════════════════════════ */
+const selSlider=document.getElementById('selSlider');
+
 function updSel(){
-  const v=+eSlider.value;
-  document.getElementById('eNum').textContent=v;
-  eSlider.style.setProperty('--p',pct(v));
+  const v=+selSlider.value;
+  document.getElementById('selElo').textContent=v;
+  selSlider.style.setProperty('--p',pct(v));
   const t=getTier(v);
-  const b=document.getElementById('eBadge');
-  b.textContent=t.label;b.style.color=t.color;b.style.borderColor=t.color;
-  document.getElementById('desc').textContent=t.desc;
+  const pill=document.getElementById('selTier');
+  pill.textContent=t.lbl;pill.style.color=t.color;pill.style.borderColor=t.color;
+  document.getElementById('selDesc').textContent=t.desc;
 }
-eSlider.addEventListener('input',updSel);
+selSlider.addEventListener('input',updSel);
 updSel();
 
-// Presets
+// Build preset buttons
 PRESETS.forEach(p=>{
   const t=getTier(p.elo);
   const btn=document.createElement('button');
-  btn.className='pb';
-  btn.innerHTML=`<span class="pb-i">${p.icon}</span><span class="pb-l">${p.label}</span><span class="pb-e" style="color:${t.color}">${p.elo}</span>`;
+  btn.className='preset';
+  btn.innerHTML=`<span class="pi">${p.icon}</span><span class="pl">${p.lbl}</span><span class="pe" style="color:${t.color}">${p.elo}</span>`;
   btn.onmouseover=()=>{btn.style.borderColor=t.color;btn.style.transform='translateY(-2px)';};
-  btn.onmouseout=()=>{btn.style.borderColor='#252932';btn.style.transform='none';};
-  btn.onclick=()=>{eSlider.value=p.elo;updSel();};
-  document.getElementById('pg').appendChild(btn);
+  btn.onmouseout=()=>{btn.style.borderColor='';btn.style.transform='';};
+  btn.onclick=()=>{selSlider.value=p.elo;updSel();};
+  document.getElementById('presetGrid').appendChild(btn);
 });
 
-// ── STOCKFISH ENGINE ──
-// Uses STOCKFISH() factory from the <script> tag — no Worker, no CORS
+/* ═══════════════════════════════════════
+   STOCKFISH ENGINE
+   Uses importScripts inside a blob worker
+   — avoids all CORS issues
+═══════════════════════════════════════ */
 let sf=null, sfReady=false, chosenElo=1500;
 
-function initSF(elo){
+function loadSF(elo){
   chosenElo=elo;
   sfReady=false;
-  sf=null;
+  if(sf){try{sf.terminate();}catch(e){} sf=null;}
 
-  // STOCKFISH() is the factory exposed by stockfish.js when loaded as a script
-  if(typeof STOCKFISH==='function'){
-    try{
-      sf=STOCKFISH();
-      sf.onmessage=handleMsg;
-      sf.postMessage('uci');
-      sf.postMessage('isready');
-      return;
-    }catch(e){}
-  }
+  setSt('Memuat engine...','gr',true);
 
-  // Fallback: try as Worker
+  // importScripts inside blob worker — works cross-origin
+  const code=`importScripts('https://cdn.jsdelivr.net/npm/stockfish@10.0.2/stockfish.js');`;
   try{
-    sf=new Worker('https://cdn.jsdelivr.net/npm/stockfish@10.0.2/stockfish.js');
-    sf.onmessage=e=>handleMsg(e.data);
+    const blob=new Blob([code],{type:'application/javascript'});
+    sf=new Worker(URL.createObjectURL(blob));
+    sf.onmessage=e=>onSFMsg(e.data);
+    sf.onerror=()=>sfFailed();
     sf.postMessage('uci');
     sf.postMessage('isready');
-  }catch(e){
-    setSt('Engine gagal dimuat','r',false);
+  }catch(err){
+    sfFailed();
   }
 }
 
-function handleMsg(data){
+function sfFailed(){
+  sfReady=false;
+  setSt('Engine gagal — coba refresh','r',false);
+  document.getElementById('sfBadge').textContent='❌ Engine gagal';
+}
+
+function onSFMsg(data){
   const msg=String(data);
   if(!sfReady&&(msg==='readyok'||msg.includes('uciok'))){
     sfReady=true;
-    document.getElementById('hBadge').style.color='#27ae60';
-    document.getElementById('hBadge').style.borderColor='#27ae60';
+    document.getElementById('sfBadge').textContent='✓ Stockfish siap';
+    document.getElementById('sfBadge').style.color='#27ae60';
     setSt('Giliranmu — Putih memulai','g',false);
+    setTurns('w');
   }
   if(msg.startsWith('bestmove')){
     const mv=msg.split(' ')[1];
-    if(mv&&mv!=='(none)')applyBot(mv);
     thinking=false;
+    if(mv&&mv!=='(none)')applyBotMove(mv);
+    else setSt('Bot tidak bisa bergerak','r',false);
   }
 }
 
-function send(cmd){
-  if(!sf)return;
-  // Supports both Worker (postMessage) and factory (postMessage identical API)
-  sf.postMessage(cmd);
-}
+function sfSend(cmd){if(sf)sf.postMessage(cmd);}
 
 function askSF(){
   if(!sf||!sfReady||!game)return;
+  thinking=true;
   const elo=chosenElo;
 
-  // Very low elo → random move
-  if(elo<800&&Math.random()<(1-elo/800)*0.7){
+  // Low ELO: inject random moves for natural feel
+  if(elo<800&&Math.random()<(1-elo/800)*0.65){
     const mvs=game.moves();
     if(mvs.length){
+      const delay=300+Math.random()*600;
       setTimeout(()=>{
+        if(!thinking)return;
         const m=game.move(mvs[Math.floor(Math.random()*mvs.length)]);
-        if(m){lastMv={from:m.from,to:m.to};afterMove();}
-        thinking=false;
-      },200+Math.random()*500);
+        if(m){lastMv={from:m.from,to:m.to};thinking=false;afterMove();}
+      },delay);
       return;
     }
   }
 
-  send('ucinewgame');
+  sfSend('ucinewgame');
+
+  // Skill/ELO settings
   if(elo>=1320){
-    send('setoption name UCI_LimitStrength value true');
-    send('setoption name UCI_Elo value '+Math.min(elo,3190));
+    sfSend('setoption name UCI_LimitStrength value true');
+    sfSend('setoption name UCI_Elo value '+Math.min(elo,3190));
   }else{
-    send('setoption name UCI_LimitStrength value false');
-    send('setoption name Skill Level value '+Math.round(elo/1320*10));
+    sfSend('setoption name UCI_LimitStrength value false');
+    sfSend('setoption name Skill Level value '+Math.round(elo/1320*10));
   }
 
-  let mt=400;
-  if(elo<1000)mt=150+Math.random()*350;
-  else if(elo<2000)mt=400+Math.random()*700;
-  else if(elo<2800)mt=800+Math.random()*1000;
-  else mt=1200+Math.random()*1500;
+  // Variable movetime = human-like timing
+  let mt;
+  if(elo<800)  mt=150+Math.random()*300;
+  else if(elo<1400)mt=300+Math.random()*600;
+  else if(elo<2000)mt=600+Math.random()*800;
+  else if(elo<2600)mt=900+Math.random()*1100;
+  else          mt=1200+Math.random()*1800;
 
-  send('position fen '+game.fen());
-  send('go movetime '+Math.round(mt));
+  sfSend('position fen '+game.fen());
+  sfSend('go movetime '+Math.round(mt));
 }
 
-function applyBot(uci){
+function applyBotMove(uci){
   if(!game)return;
   const m=game.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci[4]||'q'});
   if(m){lastMv={from:m.from,to:m.to};afterMove();}
 }
 
-// ── START ──
-document.getElementById('startBtn').onclick=function(){
-  const elo=+eSlider.value;
-  const t=getTier(elo);
-  document.getElementById('botLbl').textContent='ELO '+elo+' · '+t.label;
-  document.getElementById('hBadge').textContent='ELO '+elo;
-  document.getElementById('sel').classList.add('hidden');
-  document.getElementById('game').classList.remove('hidden');
-  game=new Chess();
-  sel=null;targets=[];lastMv=null;flipped=false;thinking=false;gameOver=false;
-  updateHistory();updateCaps();renderBoard();
-  setSt('Memuat engine...','gr',true);
-  initSF(elo);
-};
+/* ═══════════════════════════════════════
+   GAME STATE
+═══════════════════════════════════════ */
+let game=null,sel=null,targets=[],lastMv=null,flipped=false,thinking=false,over=false;
 
-function goBack(){
-  if(sf&&sf.terminate)sf.terminate();
-  sf=null;sfReady=false;
-  closeMo('om');
-  document.getElementById('game').classList.add('hidden');
-  document.getElementById('sel').classList.remove('hidden');
+/* ═══════════════════════════════════════
+   BOARD RENDER
+═══════════════════════════════════════ */
+function sqSize(){
+  const area=document.getElementById('boardRoot').parentElement;
+  const avW=(area?area.offsetWidth:460)-40;
+  const avH=window.innerHeight-72;
+  return Math.floor(Math.min(avW,avH,520)/8);
 }
 
-// ── GAME STATE ──
-let game=null,sel=null,targets=[],lastMv=null,flipped=false,thinking=false,gameOver=false;
-
-// ── BOARD ──
-function sqSz(){
-  const el=document.getElementById('bw');
-  if(!el)return 52;
-  return Math.floor(Math.min(el.offsetWidth||460,window.innerHeight-180,490)/8);
-}
-function findKing(col){
+function findKing(color){
   const b=game.board();
   for(let r=0;r<8;r++)for(let c=0;c<8;c++){
     const p=b[r][c];
-    if(p&&p.type==='k'&&p.color===col)return 'abcdefgh'[c]+(8-r);
+    if(p&&p.type==='k'&&p.color===color)return 'abcdefgh'[c]+(8-r);
   }
   return null;
 }
+
 function renderBoard(){
-  const wrap=document.getElementById('bw');
-  if(!wrap||!game)return;
-  const sz=sqSz();
+  const root=document.getElementById('boardRoot');
+  if(!root||!game)return;
+  const sz=sqSize();
   const b=game.board();
   const kSq=game.in_check()?findKing(game.turn()):null;
-  let h='<div style="display:flex;gap:3px;align-items:flex-start;">';
+
+  // Outer flex container
+  let h='<div style="display:flex;flex-direction:column;gap:0;">';
+
+  // Files label top (optional — Chess.com puts them bottom-left)
+  // Rank labels left + board + rank labels right layout:
+  h+='<div style="display:flex;align-items:stretch;gap:4px;">';
+
+  // Rank labels (left)
   h+='<div style="display:flex;flex-direction:column;">';
   for(let r=0;r<8;r++){
     const rk=flipped?r+1:8-r;
-    h+=`<div style="width:13px;height:${sz}px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a8090;">${rk}</div>`;
+    h+=`<div style="width:12px;height:${sz}px;display:flex;align-items:center;justify-content:flex-end;padding-right:2px;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:rgba(255,255,255,.35);">${rk}</div>`;
   }
-  h+='</div><div>';
-  h+=`<div style="display:grid;grid-template-columns:repeat(8,${sz}px);grid-template-rows:repeat(8,${sz}px);border:3px solid #111;border-radius:3px;overflow:hidden;box-shadow:0 12px 50px rgba(0,0,0,.8),0 0 0 1px rgba(201,168,76,.2);">`;
+  h+='</div>';
+
+  // Board grid
+  h+=`<div id="board" style="display:grid;grid-template-columns:repeat(8,${sz}px);grid-template-rows:repeat(8,${sz}px);box-shadow:0 8px 40px rgba(0,0,0,.7),0 0 0 2px rgba(0,0,0,.6);">`;
   for(let r=0;r<8;r++){
     for(let c=0;c<8;c++){
-      const ar=flipped?7-r:r,ac=flipped?7-c:c;
-      const file='abcdefgh'[ac],rank=8-ar,sq=file+rank;
+      const ar=flipped?7-r:r, ac=flipped?7-c:c;
+      const file='abcdefgh'[ac], rank=8-ar, sq=file+rank;
       const piece=b[ar][ac];
       const light=(ar+ac)%2===0;
       const isSel=sq===sel;
-      const isLF=lastMv&&sq===lastMv.from&&!isSel;
-      const isLT=lastMv&&sq===lastMv.to&&!isSel;
+      const isLastF=lastMv&&sq===lastMv.from&&!isSel;
+      const isLastT=lastMv&&sq===lastMv.to&&!isSel;
       const isChk=sq===kSq;
       const isTgt=targets.includes(sq);
-      let cls='sq '+(light?'lt':'dk');
+      let cls='sq '+(light?'sl':'sd');
       if(isSel)cls+=' sel';
-      if(isLF)cls+=' lf';
-      if(isLT)cls+=' lt2';
-      if(isChk)cls+=' chk';
-      if(isTgt)cls+=piece?' ring':' dot';
+      if(isLastF)cls+=' last-from';
+      if(isLastT)cls+=' last-to';
+      if(isChk)cls+=' in-check';
+      if(isTgt)cls+=piece?' ring-hint':' dot-hint';
       h+=`<div class="${cls}" style="width:${sz}px;height:${sz}px;" onclick="clickSq('${sq}')">`;
-      if(piece)h+=`<img src="${PIX[piece.color+piece.type.toUpperCase()]}" alt="">`;
+      if(piece)h+=`<img src="${IMG[piece.color+piece.type.toUpperCase()]}" draggable="false">`;
       h+='</div>';
     }
   }
-  h+='</div><div style="display:flex;">';
+  h+='</div>';
+  h+='</div>'; // flex row
+
+  // File labels (bottom)
+  h+='<div style="display:flex;margin-left:16px;">';
   for(let c=0;c<8;c++){
     const ac=flipped?7-c:c;
-    h+=`<div style="width:${sz}px;height:13px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a8090;">${'abcdefgh'[ac]}</div>`;
+    h+=`<div style="width:${sz}px;height:12px;display:flex;align-items:flex-start;justify-content:flex-end;padding-right:2px;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:rgba(255,255,255,.35);">${'abcdefgh'[ac]}</div>`;
   }
-  h+='</div></div></div>';
-  wrap.innerHTML=h;
+  h+='</div>';
+
+  h+='</div>'; // outer col
+  root.innerHTML=h;
 }
 
-// ── CLICK ──
+/* ═══════════════════════════════════════
+   CLICK HANDLER
+═══════════════════════════════════════ */
 function clickSq(sq){
-  if(gameOver||thinking||game.turn()!=='w')return;
+  if(over||thinking||game.turn()!=='w')return;
   const b=game.board();
-  const ac=sq.charCodeAt(0)-97,ar=8-parseInt(sq[1]);
+  const ac=sq.charCodeAt(0)-97, ar=8-parseInt(sq[1]);
   const piece=b[ar][ac];
-  if(sel&&targets.includes(sq)){doMove(sel,sq);return;}
+
+  if(sel&&targets.includes(sq)){makeMove(sel,sq);return;}
   if(piece&&piece.color==='w'){
-    sel=sq;targets=game.moves({square:sq,verbose:true}).map(m=>m.to);renderBoard();return;
+    sel=sq;
+    targets=game.moves({square:sq,verbose:true}).map(m=>m.to);
+    renderBoard();return;
   }
   sel=null;targets=[];renderBoard();
 }
-function doMove(from,to){
+
+function makeMove(from,to){
   const b=game.board();
   const p=b[8-parseInt(from[1])][from.charCodeAt(0)-97];
   if(p&&p.type==='p'&&(to[1]==='8'||to[1]==='1')){showPromo(from,to);return;}
@@ -494,124 +611,186 @@ function doMove(from,to){
   lastMv={from:m.from,to:m.to};sel=null;targets=[];afterMove();
 }
 
-// ── PROMOTION ──
+/* ═══════════════════════════════════════
+   PROMOTION
+═══════════════════════════════════════ */
 function showPromo(from,to){
-  const pp=document.getElementById('pp');pp.innerHTML='';
+  const slots=document.getElementById('promoSlots');slots.innerHTML='';
   ['q','r','b','n'].forEach(t=>{
-    const d=document.createElement('div');d.className='ppc';
-    d.innerHTML=`<img src="${PIX['w'+t.toUpperCase()]}">`;
+    const d=document.createElement('div');d.className='promo-piece';
+    d.innerHTML=`<img src="${IMG['w'+t.toUpperCase()]}">`;
     d.onclick=()=>{
-      closeMo('pm');
+      hideMod('modPromo');
       const m=game.move({from,to,promotion:t});
       if(m){lastMv={from:m.from,to:m.to};sel=null;targets=[];afterMove();}
     };
-    pp.appendChild(d);
+    slots.appendChild(d);
   });
-  document.getElementById('pm').classList.add('show');
+  showMod('modPromo');
 }
 
-// ── AFTER MOVE ──
+/* ═══════════════════════════════════════
+   AFTER EACH MOVE
+═══════════════════════════════════════ */
 function afterMove(){
-  updateHistory();updateCaps();
-  const cnt=game.history().length;
-  document.getElementById('mvc').textContent=cnt?Math.ceil(cnt/2)+' langkah':'';
-  renderBoard();
-  if(game.game_over()){setTimeout(showOver,250);return;}
+  updateMoves();updateCaps();renderBoard();
+  if(game.game_over()){setTimeout(showOver,280);return;}
   if(game.turn()==='b'){
     thinking=true;
-    setSt('<span>Berpikir<span class="d1">.</span><span class="d2">.</span><span class="d3">.</span></span>','o',false);
-    setTimeout(askSF,100);
+    setTurns('b');
+    setSt('<span>Berpikir<span style="animation:blink .8s 0s infinite both">.</span><span style="animation:blink .8s .25s infinite both">.</span><span style="animation:blink .8s .5s infinite both">.</span></span>','o',false);
+    setTimeout(askSF,80);
   }else{
     thinking=false;
+    setTurns('w');
     setSt(game.in_check()?'⚡ Skak! Lindungi Rajamu':'Giliranmu',game.in_check()?'r':'g',false);
   }
 }
 
-// ── STATUS ──
-function setSt(html,dot,pulse){
-  document.getElementById('slbl').innerHTML=html;
-  const d=document.getElementById('dot');
-  d.className='sd '+dot+(pulse?' pulse':'');
+/* ═══════════════════════════════════════
+   STATUS & TURN INDICATORS
+═══════════════════════════════════════ */
+function setSt(html,dot,_){
+  document.getElementById('sLabel').innerHTML=html;
+  const d=document.getElementById('sDot');
+  d.className='sdot '+dot;
 }
 
-// ── HISTORY ──
-function updateHistory(){
+function setTurns(turn){
+  document.getElementById('dotBot').className='turn-indicator '+(turn==='b'?'active':'waiting');
+  document.getElementById('dotYou').className='turn-indicator '+(turn==='w'?'active':'waiting');
+}
+
+/* ═══════════════════════════════════════
+   MOVE LIST
+═══════════════════════════════════════ */
+function updateMoves(){
   if(!game)return;
   const h=game.history({verbose:true});
   let html='';
   for(let i=0;i<h.length;i+=2){
-    const cw=i===h.length-1,cb=i+1===h.length-1;
-    html+=`<div class="mr"><span class="mn">${i/2+1}.</span><span class="mw${cw?' cur':''}">${h[i].san}</span>`;
-    html+=h[i+1]?`<span class="mb2${cb?' cur':''}">${h[i+1].san}</span>`:'<span></span>';
-    html+='</div>';
+    const cw=i===h.length-1, cb=i+1===h.length-1;
+    html+=`<div class="move-row">
+      <span class="move-num">${i/2+1}.</span>
+      <span class="move-w${cw?' hi':''}">${h[i].san}</span>
+      <span class="move-b${cb&&h[i+1]?' hi':''}">${h[i+1]?h[i+1].san:''}</span>
+    </div>`;
   }
-  const ml=document.getElementById('ml');
-  if(ml){ml.innerHTML=html;ml.parentElement.scrollTop=ml.parentElement.scrollHeight;}
+  const el=document.getElementById('moveRows');
+  el.innerHTML=html;
+  el.parentElement.scrollTop=el.parentElement.scrollHeight;
 }
 
-// ── CAPTURES ──
+/* ═══════════════════════════════════════
+   CAPTURED PIECES
+═══════════════════════════════════════ */
 function updateCaps(){
   if(!game)return;
   const h=game.history({verbose:true});
-  const wc=[],bc=[];
-  h.forEach(m=>{if(m.captured)(m.color==='w'?wc:bc).push(m.captured);});
-  const ws=wc.reduce((a,p)=>a+(VALS[p]||0),0);
-  const bs=bc.reduce((a,p)=>a+(VALS[p]||0),0);
-  function rnd(arr,col,elId,my,opp){
+  const wTook=[],bTook=[];
+  h.forEach(m=>{if(m.captured)(m.color==='w'?wTook:bTook).push(m.captured);});
+
+  const wScore=wTook.reduce((a,p)=>a+(VALS[p]||0),0);
+  const bScore=bTook.reduce((a,p)=>a+(VALS[p]||0),0);
+
+  function renderRow(arr,col,elId,myScore,oppScore){
     const el=document.getElementById(elId);if(!el)return;
-    let h=arr.sort((a,b)=>(VALS[b]||0)-(VALS[a]||0)).map(p=>`<span>${UNI[col+p.toUpperCase()]}</span>`).join('');
-    if(my>opp)h+=`<span class="cadv">+${my-opp}</span>`;
-    el.innerHTML=h;
+    arr.sort((a,b)=>(VALS[b]||0)-(VALS[a]||0));
+    let html=arr.map(p=>{
+      const key=col+p.toUpperCase();
+      return `<img src="${IMG[key]}" title="${UNI[key]}">`;
+    }).join('');
+    if(myScore>oppScore)html+=`<span class="cap-adv">+${myScore-oppScore}</span>`;
+    el.innerHTML=html;
   }
-  rnd(wc,'b','wcp',ws,bs);rnd(bc,'w','bcp',bs,ws);
+  // White took black pieces → show under white player card (youCaps)
+  renderRow(wTook,'b','youCaps',wScore,bScore);
+  // Bot took white pieces → show under bot player card (botCaps)
+  renderRow(bTook,'w','botCaps',bScore,wScore);
 }
 
-// ── GAME OVER ──
+/* ═══════════════════════════════════════
+   GAME OVER
+═══════════════════════════════════════ */
 function showOver(){
-  gameOver=true;thinking=false;
+  over=true;thinking=false;
   let icon='🤝',title='Seri!',sub='Pertandingan berakhir imbang.';
   if(game.in_checkmate()){
     if(game.turn()==='b'){icon='🏆';title='Kamu Menang!';sub='Bot terkena Skakmat. Luar biasa!';}
-    else{icon='😞';title='Kamu Kalah';sub='Raja kamu terkena Skakmat. Coba lagi!';}
+    else{icon='😞';title='Kamu Kalah';sub='Raja kamu terkena Skakmat. Ayo coba lagi!';}
   }else if(game.in_stalemate()){icon='😮';title='Stalemate!';sub='Raja tidak bisa bergerak — seri.';}
-  else if(game.in_threefold_repetition()){icon='🔁';title='Seri!';sub='Posisi yang sama terulang 3×.';}
-  else if(game.insufficient_material()){icon='🤷';title='Seri!';sub='Material tidak cukup untuk skakmat.';}
-  document.getElementById('oi').textContent=icon;
-  document.getElementById('ot').textContent=title;
-  document.getElementById('os').textContent=sub;
-  document.getElementById('om').classList.add('show');
+  else if(game.in_threefold_repetition()){icon='🔁';title='Seri — Repetisi';sub='Posisi yang sama terulang 3× — seri.';}
+  else if(game.insufficient_material()){icon='🤷';title='Seri — Material';sub='Material tidak cukup untuk skakmat.';}
+  document.getElementById('moIcon').textContent=icon;
+  document.getElementById('moTitle').textContent=title;
+  document.getElementById('moSub').textContent=sub;
+  showMod('modOver');
+  setSt(title,game.in_checkmate()&&game.turn()==='b'?'g':'r',false);
 }
-function closeMo(id){document.getElementById(id).classList.remove('show');}
 
-// ── CONTROLS ──
+/* ═══════════════════════════════════════
+   CONTROLS
+═══════════════════════════════════════ */
 function newGame(){
   if(!game)return;
-  send('ucinewgame');
-  game.reset();sel=null;targets=[];lastMv=null;thinking=false;gameOver=false;
-  updateHistory();updateCaps();renderBoard();
-  document.getElementById('mvc').textContent='';
-  setSt(sfReady?'Giliranmu — Putih memulai':'Memuat engine...',sfReady?'g':'gr',!sfReady);
-  closeMo('om');
+  sfSend('ucinewgame');
+  game.reset();sel=null;targets=[];lastMv=null;thinking=false;over=false;
+  updateMoves();updateCaps();renderBoard();
+  setTurns('w');
+  setSt(sfReady?'Giliranmu — Putih memulai':'Memuat engine...',sfReady?'g':'gr',false);
+  hideMod('modOver');
 }
+
 function flipBoard(){flipped=!flipped;renderBoard();}
+
 function undoMove(){
   if(thinking)return;
   game.undo();game.undo();
-  lastMv=null;sel=null;targets=[];thinking=false;gameOver=false;
-  updateHistory();updateCaps();renderBoard();
-  const cnt=game.history().length;
-  document.getElementById('mvc').textContent=cnt?Math.ceil(cnt/2)+' langkah':'';
+  lastMv=null;sel=null;targets=[];thinking=false;over=false;
+  updateMoves();updateCaps();renderBoard();
+  setTurns('w');
   setSt('Giliranmu','g',false);
 }
+
 function resignGame(){
-  if(gameOver)return;
-  gameOver=true;thinking=false;
-  document.getElementById('oi').textContent='🏳';
-  document.getElementById('ot').textContent='Kamu Menyerah';
-  document.getElementById('os').textContent='Tak apa — belajar dari kekalahan!';
-  document.getElementById('om').classList.add('show');
+  if(over)return;
+  over=true;thinking=false;
+  document.getElementById('moIcon').textContent='🏳';
+  document.getElementById('moTitle').textContent='Kamu Menyerah';
+  document.getElementById('moSub').textContent='Tak apa — belajar dari setiap kekalahan!';
+  showMod('modOver');
   setSt('Kamu menyerah.','r',false);
 }
+
+/* ═══════════════════════════════════════
+   MODAL HELPERS
+═══════════════════════════════════════ */
+function showMod(id){document.getElementById(id).classList.add('show');}
+function hideMod(id){document.getElementById(id).classList.remove('show');}
+
+/* ═══════════════════════════════════════
+   START GAME
+═══════════════════════════════════════ */
+document.getElementById('startBtn').onclick=function(){
+  const elo=+selSlider.value;
+  const t=getTier(elo);
+  document.getElementById('botEloLabel').textContent='ELO '+elo+' · '+t.lbl;
+  document.getElementById('scrSel').classList.add('off');
+  document.getElementById('scrGame').classList.remove('off');
+  game=new Chess();
+  sel=null;targets=[];lastMv=null;flipped=false;thinking=false;over=false;
+  updateMoves();updateCaps();
+  renderBoard();
+  loadSF(elo);
+};
+
+function goBack(){
+  if(sf){try{sf.postMessage('stop');sf.terminate();}catch(e){}sf=null;sfReady=false;}
+  hideMod('modOver');
+  document.getElementById('scrGame').classList.add('off');
+  document.getElementById('scrSel').classList.remove('off');
+}
+
 window.addEventListener('resize',renderBoard);
 </script>
 </body>
