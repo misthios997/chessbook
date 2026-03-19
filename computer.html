@@ -239,11 +239,12 @@ PRESETS.forEach(p=>{
 });
 
 // ══════════════════════════════════════════
-// ENGINE — runs in a Web Worker (blob URL)
-// so the main thread NEVER freezes
+// ENGINE — worker does pure static eval
+// NO chess.js in worker, NO move/undo
+// Main thread sends {moves:[{uci,fen}], elo}
+// Worker scores each FEN instantly
 // ══════════════════════════════════════════
 const ENGINE_SRC=`
-// Piece values + PST tables
 const PV={p:100,n:320,b:330,r:500,q:900,k:20000};
 const PST={
   p:[0,0,0,0,0,0,0,0,50,50,50,50,50,50,50,50,10,10,20,30,30,20,10,10,5,5,10,25,25,10,5,5,0,0,0,20,20,0,0,0,5,-5,-10,0,0,-10,-5,5,5,10,10,-20,-20,10,10,5,0,0,0,0,0,0,0,0],
@@ -254,132 +255,99 @@ const PST={
   k:[-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-20,-30,-30,-40,-40,-30,-30,-20,-10,-20,-20,-20,-20,-20,-20,-10,20,20,0,0,0,0,20,20,20,30,10,0,0,10,30,20]
 };
 
-// chess.js will be fetched and embedded — NO importScripts needed
-
-function evalG(g){
-  if(g.in_checkmate())return g.turn()==='b'?100000:-100000;
-  if(g.in_draw())return 0;
-  let s=0;const b=g.board();
-  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-    const p=b[r][c];if(!p)continue;
-    const idx=p.color==='w'?r*8+c:(7-r)*8+c;
-    const v=(PV[p.type]||0)+(PST[p.type]?PST[p.type][idx]:0);
-    if(p.color==='w')s+=v;else s-=v;
-  }return s;
-}
-
-function ab(g,depth,alpha,beta,max){
-  if(depth===0||g.game_over())return evalG(g);
-  const moves=g.moves();moves.sort(m=>m.includes('x')?-1:1);
-  if(max){
-    let best=-Infinity;
-    for(const mv of moves){
-      g.move(mv);const v=ab(g,depth-1,alpha,beta,false);g.undo();
-      if(v>best)best=v;if(v>alpha)alpha=v;if(beta<=alpha)break;
-    }return best;
-  }else{
-    let best=Infinity;
-    for(const mv of moves){
-      g.move(mv);const v=ab(g,depth-1,alpha,beta,true);g.undo();
-      if(v<best)best=v;if(v<beta)beta=v;if(beta<=alpha)break;
-    }return best;
+// Parse FEN board string into score (from black's minimizing perspective)
+function evalFen(fen){
+  const ranks=fen.split(' ')[0].split('/');
+  let s=0,r=0;
+  for(const rank of ranks){
+    let c=0;
+    for(const ch of rank){
+      if(ch>='1'&&ch<='8'){c+=+ch;continue;}
+      const t=ch.toLowerCase();
+      const isW=ch===ch.toUpperCase();
+      const idx=isW?r*8+c:(7-r)*8+c;
+      const v=(PV[t]||0)+(PST[t]?PST[t][idx]||0:0);
+      if(isW)s+=v;else s-=v;
+      c++;
+    }
+    r++;
   }
+  return s; // positive = white better
 }
 
 function cfg(elo){
-  if(elo<300) return{d:1,rnd:.90,n:800};
-  if(elo<600) return{d:1,rnd:.65,n:400};
-  if(elo<900) return{d:1,rnd:.35,n:200};
-  if(elo<1200)return{d:2,rnd:.15,n:100};
-  if(elo<1500)return{d:2,rnd:.05,n:50};
-  if(elo<1800)return{d:3,rnd:.02,n:20};
-  if(elo<2100)return{d:3,rnd:.00,n:10};
-  if(elo<2400)return{d:4,rnd:.00,n:5};
-  if(elo<2700)return{d:4,rnd:.00,n:0};
-  return           {d:5,rnd:.00,n:0};
+  if(elo<300) return{rnd:.92,n:900};
+  if(elo<600) return{rnd:.72,n:500};
+  if(elo<900) return{rnd:.45,n:300};
+  if(elo<1200)return{rnd:.20,n:150};
+  if(elo<1500)return{rnd:.08,n: 80};
+  if(elo<1800)return{rnd:.03,n: 30};
+  if(elo<2100)return{rnd:.00,n: 12};
+  if(elo<2400)return{rnd:.00,n:  4};
+  return           {rnd:.00,n:  0};
 }
 
 onmessage=function(e){
-  const{fen,elo}=e.data;
+  const{moves,elo}=e.data;
+  if(!moves||!moves.length){postMessage({idx:0});return;}
   const c=cfg(elo);
-  const g=new Chess(fen);
-  const moves=g.moves({verbose:true});
-  if(!moves.length){postMessage({uci:null});return;}
 
+  // Pure random
   if(Math.random()<c.rnd){
-    const m=moves[Math.floor(Math.random()*moves.length)];
-    postMessage({uci:m.from+m.to+(m.promotion||'')});return;
+    postMessage({idx:Math.floor(Math.random()*moves.length)});return;
   }
 
+  // Score each FEN (black minimizes)
   let best=Infinity,bests=[];
-  for(const mv of moves){
-    g.move(mv);
-    let score=ab(g,c.d-1,-Infinity,Infinity,true);
-    g.undo();
+  for(let i=0;i<moves.length;i++){
+    let score=evalFen(moves[i].fen);
     if(c.n>0)score+=Math.random()*c.n*2-c.n;
-    if(score<best){best=score;bests=[mv];}
-    else if(Math.abs(score-best)<0.5)bests.push(mv);
+    if(score<best){best=score;bests=[i];}
+    else if(Math.abs(score-best)<1)bests.push(i);
   }
-  const pick=bests[Math.floor(Math.random()*bests.length)];
-  postMessage({uci:pick.from+pick.to+(pick.promotion||'')});
+  postMessage({idx:bests[Math.floor(Math.random()*bests.length)]||0});
 };
 `;
 
-let worker=null,chosenElo=1500,chessJsSrc=null;
+let worker=null,chosenElo=1500;
 
-// Fetch chess.js once, embed into worker blob — avoids ALL importScripts/CORS issues
-async function initWorker(){
+function initWorker(){
   if(worker)try{worker.terminate();}catch(e){}
-  worker=null;
-
-  // Fetch chess.js source if not cached
-  if(!chessJsSrc){
-    try{
-      const r=await fetch('https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js');
-      chessJsSrc=await r.text();
-    }catch(e){
-      console.error('Failed to fetch chess.js',e);
-      return;
-    }
-  }
-
-  // Embed chess.js + engine into one blob — no importScripts needed
-  const fullSrc=chessJsSrc+'\n'+ENGINE_SRC;
-  const blob=new Blob([fullSrc],{type:'application/javascript'});
+  const blob=new Blob([ENGINE_SRC],{type:'application/javascript'});
   worker=new Worker(URL.createObjectURL(blob));
-  worker.onerror=function(e){
-    console.error('Worker error',e);
-    worker=null;
-  };
+  worker.onerror=function(e){console.error('Worker error',e);worker=null;};
 }
 
 function askBot(callback){
   if(!game)return;
+  if(!worker)initWorker();
 
   const elo=chosenElo;
-  let minMs=400;
-  if(elo<800)minMs=200+Math.random()*400;
-  else if(elo<1600)minMs=400+Math.random()*600;
-  else minMs=600+Math.random()*1000;
+  // Pre-compute all resulting FENs on main thread (chess.js is already here)
+  const legalMoves=game.moves({verbose:true});
+  if(!legalMoves.length){callback(null);return;}
 
+  const movesWithFen=legalMoves.map(mv=>{
+    game.move(mv);
+    const fen=game.fen();
+    game.undo();
+    return{uci:mv.from+mv.to+(mv.promotion||''),fen};
+  });
+
+  // Natural delay
+  let minMs=300;
+  if(elo<800)minMs=150+Math.random()*300;
+  else if(elo<1600)minMs=300+Math.random()*500;
+  else minMs=400+Math.random()*600;
   const start=Date.now();
 
-  function sendToWorker(){
-    if(!worker){
-      // Worker not ready yet — retry in 200ms
-      setTimeout(()=>sendToWorker(),200);
-      return;
-    }
-    worker.onmessage=function(e){
-      const{uci}=e.data;
-      const elapsed=Date.now()-start;
-      const wait=Math.max(0,minMs-elapsed);
-      setTimeout(()=>callback(uci),wait);
-    };
-    worker.postMessage({fen:game.fen(),elo});
-  }
+  worker.onmessage=function(e){
+    const elapsed=Date.now()-start;
+    const wait=Math.max(0,minMs-elapsed);
+    setTimeout(()=>callback(movesWithFen[e.data.idx]?.uci||null),wait);
+  };
 
-  sendToWorker();
+  worker.postMessage({moves:movesWithFen,elo});
 }
 
 // ── GAME STATE ──
@@ -547,14 +515,14 @@ function goBack(){
 }
 
 // ── START ──
-document.getElementById('startBtn').onclick=async function(){
+document.getElementById('startBtn').onclick=function(){
   chosenElo=+selSlider.value;
   const t=getTier(chosenElo);
   document.getElementById('botRt').textContent='ELO '+chosenElo+' · '+t.lbl;
   document.getElementById('scrSel').classList.add('off');document.getElementById('scrGame').classList.remove('off');
   game=new Chess();sel=null;targets=[];lastMv=null;flipped=false;thinking=false;over=false;
   updMoves();updCaps();renderBoard();setTurns('w');setSt('Giliranmu — Putih memulai','g');
-  await initWorker();
+  initWorker();
 };
 
 window.addEventListener('resize',renderBoard);
