@@ -5,282 +5,256 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 <title>Lawan Bot Stockfish</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:#0d0f12;color:#e8e4dc;overflow:hidden;}
+.screen{position:fixed;inset:0;overflow-y:auto;}
+.hidden{display:none!important;}
 
-/* ======= SCREEN SYSTEM ======= */
-.screen{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;}
-.screen.hidden{display:none!important;}
+/* SELECT */
+#sel{background:#0d0f12;display:flex;align-items:center;justify-content:center;padding:20px;}
+.sc{width:100%;max-width:450px;display:flex;flex-direction:column;gap:18px;}
+.s-hero{text-align:center;}
+.s-icon{font-size:50px;display:block;margin-bottom:10px;}
+.s-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;background:linear-gradient(90deg,#c9a84c,#e8c96a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.s-sub{color:#7a8090;font-size:13px;margin-top:5px;}
 
-/* ======= SELECT SCREEN ======= */
-#selectScreen{background:#0d0f12;display:flex;align-items:center;justify-content:center;padding:24px;}
-.sel-card{width:100%;max-width:460px;display:flex;flex-direction:column;gap:20px;}
-.sel-hero{text-align:center;padding:8px 0;}
-.sel-chess-icon{font-size:52px;display:block;margin-bottom:12px;}
-.sel-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;background:linear-gradient(90deg,#c9a84c,#e8c96a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.sel-sub{color:#7a8090;font-size:13px;margin-top:6px;}
+.ec{background:#13161b;border:1px solid #252932;border-radius:14px;padding:22px;}
+.et{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.en{font-family:'JetBrains Mono',monospace;font-size:42px;color:#e8c96a;line-height:1;}
+.eb{font-size:10px;padding:3px 12px;border-radius:100px;border:1px solid #c9a84c;color:#c9a84c;display:inline-block;margin-top:6px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:5px;border-radius:3px;outline:none;cursor:pointer;background:linear-gradient(to right,#c9a84c var(--p,47%),#252932 var(--p,47%));}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;background:#e8c96a;border:2px solid #0d0f12;box-shadow:0 2px 8px rgba(0,0,0,.5);}
+.em{display:flex;justify-content:space-between;margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#7a8090;}
 
-.elo-card{background:#13161b;border:1px solid #252932;border-radius:16px;padding:24px;}
-.elo-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.elo-num{font-family:'JetBrains Mono',monospace;font-size:44px;font-weight:500;color:#e8c96a;line-height:1;}
-.elo-tier-badge{font-size:11px;padding:4px 14px;border-radius:100px;border:1px solid #c9a84c;color:#c9a84c;display:inline-block;margin-top:6px;}
-input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;outline:none;cursor:pointer;background:linear-gradient(to right,#c9a84c var(--p,47%),#252932 var(--p,47%));margin-bottom:6px;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#e8c96a;border:2px solid #0d0f12;box-shadow:0 2px 8px rgba(0,0,0,.5);cursor:pointer;}
-.elo-marks{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:#7a8090;}
+.plbl{font-size:10px;color:#7a8090;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.pb{background:#13161b;border:1px solid #252932;border-radius:9px;padding:10px 6px;cursor:pointer;text-align:center;transition:all .2s;color:#e8e4dc;font-family:'DM Sans',sans-serif;}
+.pb:hover{transform:translateY(-2px);}
+.pb-i{font-size:15px;display:block;margin-bottom:3px;}
+.pb-l{font-size:11px;font-weight:500;display:block;}
+.pb-e{font-family:'JetBrains Mono',monospace;font-size:10px;display:block;margin-top:2px;}
 
-.presets-label{font-size:10px;color:#7a8090;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
-.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.preset-btn{background:#13161b;border:1px solid #252932;border-radius:10px;padding:10px 6px;cursor:pointer;text-align:center;transition:all .2s;color:#e8e4dc;}
-.preset-btn:hover{transform:translateY(-2px);}
-.preset-btn .pb-icon{font-size:16px;display:block;margin-bottom:4px;}
-.preset-btn .pb-label{font-size:11px;font-weight:500;display:block;}
-.preset-btn .pb-elo{font-family:'JetBrains Mono',monospace;font-size:10px;display:block;margin-top:2px;}
+.db{background:#13161b;border:1px solid #252932;border-radius:9px;padding:12px 15px;font-size:13px;color:#7a8090;line-height:1.6;min-height:56px;}
 
-.elo-desc-box{background:#13161b;border:1px solid #252932;border-radius:10px;padding:14px 16px;font-size:13px;color:#7a8090;line-height:1.65;min-height:60px;}
+.stbtn{width:100%;padding:17px;background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0d0f12;font-family:'Playfair Display',serif;font-size:18px;font-weight:900;border:none;border-radius:11px;cursor:pointer;transition:all .2s;}
+.stbtn:hover{filter:brightness(1.09);transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.4);}
 
-.start-btn{width:100%;padding:18px;background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0d0f12;font-family:'Playfair Display',serif;font-size:19px;font-weight:900;border:none;border-radius:12px;cursor:pointer;letter-spacing:.3px;transition:all .2s;}
-.start-btn:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 8px 30px rgba(201,168,76,.4);}
-.start-btn:active{transform:translateY(0);}
+/* GAME */
+#game{background:#0d0f12;display:flex;flex-direction:column;}
+header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:#13161b;border-bottom:1px solid #252932;}
+.bk{display:flex;align-items:center;gap:7px;color:#7a8090;text-decoration:none;font-size:12.5px;padding:6px 12px;border:1px solid #252932;border-radius:7px;cursor:pointer;background:none;transition:all .2s;}
+.bk:hover{color:#c9a84c;border-color:#c9a84c;}
+.ht{font-family:'Playfair Display',serif;font-size:16px;font-weight:900;background:linear-gradient(90deg,#c9a84c,#e8c96a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hb{font-size:11px;padding:3px 10px;border-radius:100px;border:1px solid #252932;color:#7a8090;}
 
-/* ======= GAME SCREEN ======= */
-#gameScreen{background:#0d0f12;display:flex;flex-direction:column;}
-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:11px 18px;background:#13161b;border-bottom:1px solid #252932;}
-.back-btn{display:flex;align-items:center;gap:7px;color:#7a8090;text-decoration:none;font-size:12.5px;padding:6px 12px;border:1px solid #252932;border-radius:8px;cursor:pointer;background:none;transition:all .2s;}
-.back-btn:hover{color:#c9a84c;border-color:#c9a84c;}
-.hdr-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:900;background:linear-gradient(90deg,#c9a84c,#e8c96a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.hdr-sf{font-size:11px;color:#7a8090;}
-
-.game-body{flex:1;display:flex;overflow:hidden;}
+.gb{flex:1;display:flex;overflow:hidden;}
 
 /* LEFT */
-.left{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;gap:9px;min-width:0;}
-.status-bar{width:100%;max-width:490px;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:#13161b;border:1px solid #252932;border-radius:9px;}
-.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.sdot.green{background:#27ae60;box-shadow:0 0 6px #27ae60;}
-.sdot.red{background:#c0392b;box-shadow:0 0 6px #c0392b;}
-.sdot.gold{background:#c9a84c;box-shadow:0 0 6px #c9a84c;}
-.sdot.grey{background:#7a8090;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.lp{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;gap:9px;min-width:0;}
+.sb{width:100%;max-width:490px;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:#13161b;border:1px solid #252932;border-radius:9px;}
+.sd{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.sd.g{background:#27ae60;box-shadow:0 0 6px #27ae60;}
+.sd.r{background:#c0392b;box-shadow:0 0 6px #c0392b;}
+.sd.o{background:#c9a84c;box-shadow:0 0 6px #c9a84c;}
+.sd.gr{background:#7a8090;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
 .pulse{animation:pulse 1s infinite;}
-
-#boardWrap{width:100%;max-width:490px;}
-
-.g-elo{width:100%;max-width:490px;background:#13161b;border:1px solid #252932;border-radius:10px;padding:12px 16px;}
-.g-elo-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.g-elo-lbl{font-size:10px;color:#7a8090;text-transform:uppercase;letter-spacing:1px;}
-.g-elo-val{font-family:'JetBrains Mono',monospace;font-size:20px;color:#e8c96a;}
-.g-elo-tier{font-size:10px;padding:2px 9px;border-radius:100px;border:1px solid #c9a84c;color:#c9a84c;margin-left:8px;}
+#bw{width:100%;max-width:490px;}
 
 /* BOARD */
-#board{display:grid;grid-template-columns:repeat(8,1fr);border:3px solid #111;border-radius:3px;overflow:hidden;box-shadow:0 12px 50px rgba(0,0,0,.8),0 0 0 1px rgba(201,168,76,.2);}
 .sq{position:relative;cursor:pointer;user-select:none;}
-.sq.light{background:#f0d9b5;}
-.sq.dark{background:#b58863;}
-.sq.sel{background:rgba(106,168,79,.85)!important;}
-.sq.lastfrom,.sq.lastto{background:rgba(255,214,0,.38)!important;}
-.sq.sel.lastfrom,.sq.sel.lastto{background:rgba(106,168,79,.85)!important;}
-.sq.incheck{background:rgba(192,57,43,.65)!important;}
+.sq.lt{background:#f0d9b5;}
+.sq.dk{background:#b58863;}
+.sq.sel{background:rgba(106,168,79,.88)!important;}
+.sq.lf,.sq.lt2{background:rgba(255,214,0,.4)!important;}
+.sq.sel.lf,.sq.sel.lt2{background:rgba(106,168,79,.88)!important;}
+.sq.chk{background:rgba(192,57,43,.65)!important;}
 .sq img{width:100%;height:100%;display:block;pointer-events:none;-webkit-user-drag:none;}
 .sq.dot::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30%;height:30%;background:rgba(0,0,0,.22);border-radius:50%;pointer-events:none;z-index:1;}
 .sq.ring::after{content:'';position:absolute;inset:0;border:3.5px solid rgba(106,168,79,.85);pointer-events:none;z-index:1;}
 
-/* RIGHT PANEL */
-.right{width:248px;flex-shrink:0;background:#13161b;border-left:1px solid #252932;display:flex;flex-direction:column;overflow:hidden;}
-.ptag{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #252932;}
-.pclr{width:13px;height:13px;border-radius:3px;flex-shrink:0;}
-.pclr.w{background:#f0d9b5;border:1px solid rgba(0,0,0,.2);}
-.pclr.b{background:#1a1a1a;border:1px solid rgba(255,255,255,.2);}
-.pnm{font-size:13px;font-weight:500;}
-.psb{font-size:11px;color:#7a8090;}
-.caps{padding:6px 14px;min-height:28px;display:flex;flex-wrap:wrap;gap:2px;align-items:center;border-bottom:1px solid #252932;}
-.cap{font-size:15px;opacity:.75;}
-.cadv{font-family:'JetBrains Mono',monospace;font-size:11px;color:#c9a84c;margin-left:4px;}
-.psec{padding:12px 14px;border-bottom:1px solid #252932;}
-.psec-t{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7a8090;margin-bottom:10px;}
-.ctrls{display:flex;flex-direction:column;gap:7px;}
-.btn{padding:8px 12px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid #252932;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;}
-.btn-p{background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0d0f12;border-color:transparent;font-weight:700;}
-.btn-p:hover{filter:brightness(1.08);transform:translateY(-1px);}
-.btn-s{background:transparent;color:#e8e4dc;}
-.btn-s:hover{background:#1a1e25;border-color:#c9a84c;color:#c9a84c;}
-.btn-d{background:transparent;color:#c0392b;border-color:rgba(192,57,43,.3);}
-.btn-d:hover{background:rgba(192,57,43,.1);}
-.move-hist{flex:1;overflow-y:auto;padding:8px 14px;}
-.move-hist::-webkit-scrollbar{width:3px;}
-.move-hist::-webkit-scrollbar-thumb{background:#252932;}
-#moveList{display:flex;flex-direction:column;gap:1px;}
-.mrow{display:grid;grid-template-columns:24px 1fr 1fr;gap:3px;align-items:center;padding:2px 4px;border-radius:5px;}
-.mrow:hover{background:#1a1e25;}
-.mnum{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a8090;}
-.mw,.mb{font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:2px 5px;border-radius:4px;}
+/* RIGHT */
+.rp{width:246px;flex-shrink:0;background:#13161b;border-left:1px solid #252932;display:flex;flex-direction:column;overflow:hidden;}
+.pt{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:1px solid #252932;}
+.pc{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.pc.w{background:#f0d9b5;border:1px solid rgba(0,0,0,.2);}
+.pc.b{background:#1a1a1a;border:1px solid rgba(255,255,255,.2);}
+.pn{font-size:13px;font-weight:500;}
+.ps{font-size:11px;color:#7a8090;}
+.cp{padding:5px 13px;min-height:26px;display:flex;flex-wrap:wrap;gap:2px;align-items:center;border-bottom:1px solid #252932;}
+.cp span{font-size:14px;opacity:.75;}
+.cadv{font-family:'JetBrains Mono',monospace;font-size:11px;color:#c9a84c;margin-left:3px;}
+.rs{padding:11px 13px;border-bottom:1px solid #252932;}
+.rst{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#7a8090;margin-bottom:9px;}
+.cc{display:flex;flex-direction:column;gap:6px;}
+.btn{padding:8px 12px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #252932;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;}
+.bp{background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0d0f12;border-color:transparent;font-weight:700;}
+.bp:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.bs{background:transparent;color:#e8e4dc;}
+.bs:hover{background:#1a1e25;border-color:#c9a84c;color:#c9a84c;}
+.bd{background:transparent;color:#c0392b;border-color:rgba(192,57,43,.3);}
+.bd:hover{background:rgba(192,57,43,.1);}
+.mh{flex:1;overflow-y:auto;padding:7px 13px;}
+.mh::-webkit-scrollbar{width:3px;}
+.mh::-webkit-scrollbar-thumb{background:#252932;}
+#ml{display:flex;flex-direction:column;gap:1px;}
+.mr{display:grid;grid-template-columns:22px 1fr 1fr;gap:3px;padding:2px 3px;border-radius:4px;}
+.mr:hover{background:#1a1e25;}
+.mn{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a8090;}
+.mw,.mb2{font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 4px;border-radius:4px;}
 .cur{background:rgba(201,168,76,.2);color:#e8c96a;}
 
-/* OVERLAYS */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:900;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
-.modal-bg.show{display:flex;}
-.modal-box{background:#13161b;border:1px solid #252932;border-radius:18px;padding:36px 42px;text-align:center;max-width:340px;width:90%;}
+/* MODALS */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:900;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.mo.show{display:flex;}
+.mc{background:#13161b;border:1px solid #252932;border-radius:16px;padding:34px 40px;text-align:center;max-width:320px;width:90%;}
 @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-box{animation:pop .28s ease;}
-.mo-icon{font-size:48px;margin-bottom:14px;}
-.mo-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;margin-bottom:8px;}
-.mo-sub{color:#7a8090;font-size:13px;margin-bottom:24px;line-height:1.5;}
-.mo-btns{display:flex;flex-direction:column;gap:8px;}
-
-#promoModal .modal-box{padding:24px 28px;}
-#promoModal h3{font-family:'Playfair Display',serif;font-size:17px;margin-bottom:16px;}
-.ppieces{display:flex;gap:10px;justify-content:center;}
-.pp{width:60px;height:60px;background:#1a1e25;border:2px solid #252932;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-.pp:hover{border-color:#c9a84c;transform:scale(1.07);}
-.pp img{width:44px;height:44px;}
+.mc{animation:pop .25s ease;}
+.mi{font-size:46px;margin-bottom:12px;}
+.mt2{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;margin-bottom:7px;}
+.ms{color:#7a8090;font-size:13px;margin-bottom:22px;line-height:1.5;}
+.mb3{display:flex;flex-direction:column;gap:8px;}
+#pm .mc{padding:22px 26px;}
+#pm h3{font-family:'Playfair Display',serif;font-size:16px;margin-bottom:14px;}
+.pp{display:flex;gap:9px;justify-content:center;}
+.ppc{width:56px;height:56px;background:#1a1e25;border:2px solid #252932;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.ppc:hover{border-color:#c9a84c;transform:scale(1.07);}
+.ppc img{width:42px;height:42px;}
 
 @keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
-.dot1{animation:blink 1.2s .0s infinite both;}
-.dot2{animation:blink 1.2s .2s infinite both;}
-.dot3{animation:blink 1.2s .4s infinite both;}
+.d1{animation:blink 1.2s 0s infinite both;}
+.d2{animation:blink 1.2s .2s infinite both;}
+.d3{animation:blink 1.2s .4s infinite both;}
 
-@media(max-width:660px){.right{display:none;}}
+@media(max-width:640px){.rp{display:none;}}
 </style>
 </head>
 <body>
 
-<!-- ===== SCREEN 1: ELO SELECT ===== -->
-<div class="screen" id="selectScreen">
-  <div class="sel-card">
-    <div class="sel-hero">
-      <span class="sel-chess-icon">♟</span>
-      <div class="sel-title">Pilih Level Bot</div>
-      <div class="sel-sub">Semakin tinggi ELO, semakin susah bot bermain</div>
+<!-- SCREEN 1: SELECT -->
+<div class="screen" id="sel">
+  <div class="sc">
+    <div class="s-hero">
+      <span class="s-icon">♟</span>
+      <div class="s-title">Pilih Level Bot</div>
+      <div class="s-sub">Semakin tinggi ELO, semakin susah bot bermain</div>
     </div>
 
-    <div class="elo-card">
-      <div class="elo-top">
+    <div class="ec">
+      <div class="et">
         <div>
-          <div style="font-size:11px;color:#7a8090;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Kekuatan Bot</div>
-          <div id="sTierBadge" class="elo-tier-badge">Menengah</div>
+          <div style="font-size:10px;color:#7a8090;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Kekuatan Bot</div>
+          <div id="eBadge" class="eb">Menengah</div>
         </div>
         <div style="text-align:right;">
-          <div id="sEloNum" class="elo-num">1500</div>
-          <div style="font-size:11px;color:#7a8090;margin-top:4px;">ELO</div>
+          <div id="eNum" class="en">1500</div>
+          <div style="font-size:11px;color:#7a8090;margin-top:3px;">ELO</div>
         </div>
       </div>
-      <input type="range" id="sSlider" min="1" max="3200" value="1500">
-      <div class="elo-marks">
-        <span>1</span><span>800</span><span>1600</span><span>2400</span><span>3200</span>
-      </div>
+      <input type="range" id="eSlider" min="1" max="3200" value="1500">
+      <div class="em"><span>1</span><span>800</span><span>1600</span><span>2400</span><span>3200</span></div>
     </div>
 
     <div>
-      <div class="presets-label">Pilih Cepat</div>
-      <div class="presets" id="presets"></div>
+      <div class="plbl">Pilih Cepat</div>
+      <div class="pg" id="pg"></div>
     </div>
 
-    <div class="elo-desc-box" id="sDesc"></div>
+    <div class="db" id="desc"></div>
 
-    <button class="start-btn" id="startBtn">Mulai Bermain →</button>
+    <button class="stbtn" id="startBtn">Mulai Bermain →</button>
   </div>
 </div>
 
-<!-- ===== SCREEN 2: GAME ===== -->
-<div class="screen hidden" id="gameScreen">
+<!-- SCREEN 2: GAME -->
+<div class="screen hidden" id="game">
   <header>
-    <button class="back-btn" onclick="goBack()">← Pilih Level</button>
-    <span class="hdr-title">vs Stockfish</span>
-    <span class="hdr-sf" id="sfStatus">Memuat...</span>
+    <button class="bk" onclick="goBack()">← Pilih Level</button>
+    <span class="ht">vs Stockfish</span>
+    <span class="hb" id="hBadge">ELO 1500</span>
   </header>
 
-  <div class="game-body">
-    <!-- LEFT -->
-    <div class="left">
-      <div class="status-bar" style="max-width:490px;">
+  <div class="gb">
+    <div class="lp">
+      <div class="sb" style="max-width:490px;">
         <div style="display:flex;align-items:center;gap:9px;">
-          <div class="sdot grey pulse" id="sDot"></div>
-          <span id="sLabel" style="font-size:13px;font-weight:500;">Memuat Stockfish...</span>
+          <div class="sd gr pulse" id="dot"></div>
+          <span id="slbl" style="font-size:13px;font-weight:500;">Memuat engine...</span>
         </div>
-        <span id="mvCount" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#7a8090;"></span>
+        <span id="mvc" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#7a8090;"></span>
       </div>
-
-      <div id="boardWrap" style="width:100%;max-width:490px;"></div>
-
-      <div class="g-elo" style="max-width:490px;">
-        <div class="g-elo-row">
-          <div>
-            <span class="g-elo-lbl">Bot</span>
-            <span class="g-elo-tier" id="gTier">Menengah</span>
-          </div>
-          <div><span class="g-elo-val" id="gElo">1500</span><span style="font-size:11px;color:#7a8090;margin-left:4px;">ELO</span></div>
-        </div>
-        <input type="range" id="gSlider" min="1" max="3200" value="1500">
-        <div class="elo-marks"><span>1</span><span>800</span><span>1600</span><span>2400</span><span>3200</span></div>
-      </div>
+      <div id="bw" style="width:100%;max-width:490px;"></div>
     </div>
 
-    <!-- RIGHT -->
-    <div class="right">
-      <div class="ptag">
-        <div class="pclr b"></div>
-        <div><div class="pnm">Stockfish</div><div class="psb" id="botEloBadge">ELO 1500</div></div>
+    <div class="rp">
+      <div class="pt">
+        <div class="pc b"></div>
+        <div><div class="pn">Stockfish</div><div class="ps" id="botLbl">ELO 1500</div></div>
       </div>
-      <div class="caps" id="bCaps"></div>
-
-      <div class="psec">
-        <div class="psec-t">Kontrol</div>
-        <div class="ctrls">
-          <button class="btn btn-p" onclick="newGame()">♟ Mulai Baru</button>
-          <button class="btn btn-s" onclick="flipBoard()">⇅ Balik Papan</button>
-          <button class="btn btn-s" onclick="undoMove()">↩ Undo</button>
-          <button class="btn btn-d" onclick="resignGame()">🏳 Menyerah</button>
+      <div class="cp" id="bcp"></div>
+      <div class="rs">
+        <div class="rst">Kontrol</div>
+        <div class="cc">
+          <button class="btn bp" onclick="newGame()">♟ Mulai Baru</button>
+          <button class="btn bs" onclick="flipBoard()">⇅ Balik Papan</button>
+          <button class="btn bs" onclick="undoMove()">↩ Undo</button>
+          <button class="btn bd" onclick="resignGame()">🏳 Menyerah</button>
         </div>
       </div>
-
-      <div class="psec" style="padding-bottom:8px;">
-        <div class="psec-t">Riwayat Langkah</div>
+      <div class="rs" style="padding-bottom:7px;">
+        <div class="rst">Riwayat</div>
       </div>
-      <div class="move-hist"><div id="moveList"></div></div>
-
+      <div class="mh"><div id="ml"></div></div>
       <div style="border-top:1px solid #252932;">
-        <div class="caps" id="wCaps"></div>
-        <div class="ptag">
-          <div class="pclr w"></div>
-          <div><div class="pnm">Kamu</div><div class="psb">Putih</div></div>
+        <div class="cp" id="wcp"></div>
+        <div class="pt">
+          <div class="pc w"></div>
+          <div><div class="pn">Kamu</div><div class="ps">Putih</div></div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- GAME OVER MODAL -->
-<div class="modal-bg" id="overModal">
-  <div class="modal-box">
-    <div class="mo-icon" id="moIcon"></div>
-    <div class="mo-title" id="moTitle"></div>
-    <div class="mo-sub" id="moSub"></div>
-    <div class="mo-btns">
-      <button class="btn btn-p" onclick="newGame();closeModal('overModal')">♟ Main Lagi</button>
-      <button class="btn btn-s" onclick="goBack()">← Pilih Level Baru</button>
+<!-- GAME OVER -->
+<div class="mo" id="om">
+  <div class="mc">
+    <div class="mi" id="oi"></div>
+    <div class="mt2" id="ot"></div>
+    <div class="ms" id="os"></div>
+    <div class="mb3">
+      <button class="btn bp" onclick="newGame();closeMo('om')">♟ Main Lagi</button>
+      <button class="btn bs" onclick="goBack()">← Pilih Level Baru</button>
     </div>
   </div>
 </div>
 
-<!-- PROMOTION MODAL -->
-<div class="modal-bg" id="promoModal">
-  <div class="modal-box">
+<!-- PROMOTION -->
+<div class="mo" id="pm">
+  <div class="mc">
     <h3>Pilih Promosi Pion</h3>
-    <div class="ppieces" id="pPieces"></div>
+    <div class="pp" id="pp"></div>
   </div>
 </div>
 
 <script>
-// ===== ANTI ZOOM =====
+// ── ANTI ZOOM ──
 window.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault();},{passive:false});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['Equal','Minus','Digit0','NumpadAdd','NumpadSubtract','Numpad0'].includes(e.code))e.preventDefault();});
 document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
 
-// ===== PIECES =====
-const WIKI={
+// ── CHESS.JS ──
+// Loaded from CDN above. Fallback inline-load if needed.
+function waitChess(cb){
+  if(typeof Chess!=='undefined')cb();
+  else setTimeout(()=>waitChess(cb),50);
+}
+
+// ── WIKI PIECES ──
+const W={
   wK:'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
   wQ:'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
   wR:'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
@@ -297,204 +271,243 @@ const WIKI={
 const UNI={wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙',bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟'};
 const VALS={p:1,n:3,b:3,r:5,q:9};
 
-// ===== TIERS =====
+// ── TIERS ──
 const TIERS=[
-  {max:400, label:'🐣 Pemula',      color:'#95a5a6', desc:'Baru belajar catur? Bot ini sangat mudah dikalahkan. Cocok untuk memahami cara bergerak bidak.'},
-  {max:800, label:'😊 Amatir',      color:'#5dade2', desc:'Bot masih sering membuat blunder sederhana. Cocok jika kamu sudah paham aturan dasar catur.'},
-  {max:1200,label:'⚔️ Klub',        color:'#27ae60', desc:'Setara pemain klub lokal. Bot cukup berbahaya dan tidak selalu membuat kesalahan.'},
-  {max:1600,label:'📚 Menengah',    color:'#f39c12', desc:'Setara pemain turnamen amatir. Bot punya rencana jelas dan bisa menghukum kesalahanmu.'},
-  {max:2000,label:'🔥 Expert',      color:'#e67e22', desc:'Sangat kuat. Hampir tanpa blunder, punya pemahaman taktis dan posisional yang dalam.'},
-  {max:2400,label:'🏅 Candidate Master',color:'#c0392b', desc:'Level Candidate Master FIDE. Sangat sulit dikalahkan — butuh fokus dan rencana matang.'},
-  {max:2700,label:'👑 Grandmaster', color:'#9b59b6', desc:'Level Grandmaster internasional. Hampir sempurna di semua fase permainan.'},
-  {max:3200,label:'🏆 Magnus Level',color:'#c9a84c', desc:'Kekuatan penuh Stockfish. Setara atau melebihi Magnus Carlsen. Hampir mustahil menang.'},
+  {max:400, label:'🐣 Pemula',    color:'#95a5a6', desc:'Bot sangat mudah dikalahkan. Cocok untuk baru belajar catur.'},
+  {max:800, label:'😊 Amatir',    color:'#5dade2', desc:'Bot sering blunder. Cocok jika sudah paham aturan dasar.'},
+  {max:1200,label:'⚔️ Klub',      color:'#27ae60', desc:'Setara pemain klub lokal. Sudah cukup berbahaya.'},
+  {max:1600,label:'📚 Menengah',  color:'#f39c12', desc:'Setara pemain turnamen amatir. Punya rencana yang jelas.'},
+  {max:2000,label:'🔥 Expert',    color:'#e67e22', desc:'Sangat kuat, hampir tanpa blunder. Butuh fokus penuh.'},
+  {max:2400,label:'🏅 CM',        color:'#c0392b', desc:'Level Candidate Master FIDE. Sangat sulit dikalahkan.'},
+  {max:2700,label:'👑 GM',        color:'#9b59b6', desc:'Level Grandmaster internasional. Hampir sempurna.'},
+  {max:3200,label:'🏆 Magnus',    color:'#c9a84c', desc:'Kekuatan penuh Stockfish. Hampir mustahil menang.'},
 ];
 const PRESETS=[
-  {elo:100,  icon:'🐣', label:'Bayi'},
-  {elo:500,  icon:'😊', label:'Kasual'},
-  {elo:1000, icon:'⚔️', label:'Serius'},
-  {elo:1600, icon:'🔥', label:'Expert'},
-  {elo:2400, icon:'👑', label:'Master'},
-  {elo:3200, icon:'🏆', label:'Magnus'},
+  {elo:100,  icon:'🐣',label:'Bayi'},
+  {elo:500,  icon:'😊',label:'Kasual'},
+  {elo:1000, icon:'⚔️',label:'Serius'},
+  {elo:1600, icon:'🔥',label:'Expert'},
+  {elo:2400, icon:'🏅',label:'Master'},
+  {elo:3200, icon:'🏆',label:'Magnus'},
 ];
 
 function getTier(v){return TIERS.find(t=>v<=t.max)||TIERS[TIERS.length-1];}
 function pct(v){return ((v-1)/3199*100).toFixed(1)+'%';}
 
-// ===== SELECT SCREEN =====
-const sSlider=document.getElementById('sSlider');
-function updateSelect(){
-  const v=+sSlider.value;
-  document.getElementById('sEloNum').textContent=v;
-  sSlider.style.setProperty('--p',pct(v));
+// ── SELECT SCREEN ──
+const eSlider=document.getElementById('eSlider');
+function updSel(){
+  const v=+eSlider.value;
+  document.getElementById('eNum').textContent=v;
+  eSlider.style.setProperty('--p',pct(v));
   const t=getTier(v);
-  const b=document.getElementById('sTierBadge');
+  const b=document.getElementById('eBadge');
   b.textContent=t.label;b.style.color=t.color;b.style.borderColor=t.color;
-  document.getElementById('sDesc').textContent=t.desc;
+  document.getElementById('desc').textContent=t.desc;
 }
-sSlider.addEventListener('input',updateSelect);
-updateSelect();
+eSlider.addEventListener('input',updSel);
+updSel();
 
-// Build preset buttons
-const presetGrid=document.getElementById('presets');
+// Presets
+const pg=document.getElementById('pg');
 PRESETS.forEach(p=>{
   const t=getTier(p.elo);
   const btn=document.createElement('button');
-  btn.className='preset-btn';
-  btn.style.borderColor='#252932';
-  btn.innerHTML=`<span class="pb-icon">${p.icon}</span><span class="pb-label">${p.label}</span><span class="pb-elo" style="color:${t.color}">${p.elo} ELO</span>`;
+  btn.className='pb';
+  btn.innerHTML=`<span class="pb-i">${p.icon}</span><span class="pb-l">${p.label}</span><span class="pb-e" style="color:${t.color}">${p.elo}</span>`;
   btn.onmouseover=()=>{btn.style.borderColor=t.color;btn.style.transform='translateY(-2px)';};
   btn.onmouseout=()=>{btn.style.borderColor='#252932';btn.style.transform='none';};
-  btn.onclick=()=>{sSlider.value=p.elo;updateSelect();};
-  presetGrid.appendChild(btn);
+  btn.onclick=()=>{eSlider.value=p.elo;updSel();};
+  pg.appendChild(btn);
 });
 
-document.getElementById('startBtn').onclick=function(){
-  const elo=+sSlider.value;
-  // Sync to game slider
-  const gs=document.getElementById('gSlider');
-  gs.value=elo;
-  updateGameEloUI(elo);
-  // Switch screens
-  document.getElementById('selectScreen').classList.add('hidden');
-  document.getElementById('gameScreen').classList.remove('hidden');
-  // Init engine & board
-  initEngine();
-  renderBoard();
-};
+// ── STOCKFISH ENGINE ──
+let sf=null, sfReady=false, chosenElo=1500;
 
-function goBack(){
-  if(sf){sf.postMessage('stop');sf.terminate();sf=null;sfReady=false;}
-  game=new Chess();sel=null;targets=[];lastMv=null;thinking=false;gameOver=false;
-  document.getElementById('gameScreen').classList.add('hidden');
-  document.getElementById('selectScreen').classList.remove('hidden');
-  closeModal('overModal');
-}
+function initSF(elo){
+  chosenElo=elo;
+  sfReady=false;
+  if(sf){sf.terminate();sf=null;}
 
-// ===== GAME ELO UI =====
-const gSlider=document.getElementById('gSlider');
-function updateGameEloUI(v){
-  v=v||+gSlider.value;
-  document.getElementById('gElo').textContent=v;
-  document.getElementById('botEloBadge').textContent='ELO '+v;
-  gSlider.style.setProperty('--p',pct(v));
-  const t=getTier(v);
-  const te=document.getElementById('gTier');
-  te.textContent=t.label;te.style.color=t.color;te.style.borderColor=t.color;
-}
-gSlider.addEventListener('input',()=>updateGameEloUI());
+  // Use Stockfish 16 lite WASM via CDN — most reliable for browser
+  const sfUrl='https://cdn.jsdelivr.net/npm/stockfish.wasm@0.10.0/stockfish.js';
 
-// ===== STOCKFISH =====
-let sf=null,sfReady=false;
-async function initEngine(){
-  setStatus('Memuat engine...','grey',true);
-  const url='https://cdn.jsdelivr.net/npm/stockfish@10.0.2/stockfish.js';
-  try{
-    const r=await fetch(url);
-    const txt=await r.text();
-    sf=new Worker(URL.createObjectURL(new Blob([txt],{type:'application/javascript'})));
-  }catch{
-    try{sf=new Worker(url);}
-    catch{setStatus('Engine gagal dimuat','red',false);document.getElementById('sfStatus').textContent='❌';return;}
+  function tryWorker(url, useBlob){
+    return new Promise((res,rej)=>{
+      let worker;
+      try{
+        if(useBlob){
+          fetch(url).then(r=>r.text()).then(txt=>{
+            try{
+              const blob=new Blob([txt],{type:'application/javascript'});
+              worker=new Worker(URL.createObjectURL(blob));
+              setupWorker(worker,res,rej);
+            }catch(e){rej(e);}
+          }).catch(rej);
+        }else{
+          worker=new Worker(url);
+          setupWorker(worker,res,rej);
+        }
+      }catch(e){rej(e);}
+    });
   }
-  sf.onmessage=function(e){
-    const msg=e.data;
-    if(!sfReady&&(msg==='readyok'||msg.includes('uciok'))){
-      sfReady=true;
-      document.getElementById('sfStatus').textContent='✓ Siap';
-      document.getElementById('sfStatus').style.color='#27ae60';
-      setStatus('Giliranmu — Putih memulai','green',false);
+
+  function setupWorker(w,res,rej){
+    let ok=false;
+    const t=setTimeout(()=>{if(!ok)rej(new Error('timeout'));},5000);
+    w.onmessage=function(e){
+      if(!ok&&(e.data==='readyok'||String(e.data).includes('uciok'))){
+        ok=true;clearTimeout(t);res(w);
+      }
+    };
+    w.onerror=rej;
+    w.postMessage('uci');
+    w.postMessage('isready');
+  }
+
+  const urls=[
+    {url:'https://cdn.jsdelivr.net/npm/stockfish@10.0.2/stockfish.js',blob:true},
+    {url:'https://cdn.jsdelivr.net/npm/stockfish@10.0.2/stockfish.js',blob:false},
+    {url:'https://unpkg.com/stockfish@10.0.2/stockfish.js',blob:true},
+  ];
+
+  async function tryAll(){
+    for(const u of urls){
+      try{
+        const w=await tryWorker(u.url,u.blob);
+        sf=w;
+        sf.onmessage=onSFMsg;
+        sfReady=true;
+        document.getElementById('hBadge').textContent='ELO '+chosenElo;
+        document.getElementById('hBadge').style.color='#27ae60';
+        document.getElementById('hBadge').style.borderColor='#27ae60';
+        setSt('Gililanmu — Putih memulai','g',false);
+        return;
+      }catch(e){}
     }
-    if(msg.startsWith('bestmove')){
-      const mv=msg.split(' ')[1];
-      if(mv&&mv!=='(none)')applyBot(mv);
-      thinking=false;
+    setSt('Engine gagal. Coba refresh.','r',false);
+  }
+
+  tryAll();
+}
+
+function onSFMsg(e){
+  const msg=String(e.data);
+  if(msg.startsWith('bestmove')){
+    const mv=msg.split(' ')[1];
+    if(mv&&mv!=='(none)'){
+      applyBot(mv);
+    }else{
+      // No move found — shouldn't happen, but handle
     }
-  };
-  sf.postMessage('uci');
-  sf.postMessage('isready');
+  }
 }
 
 function askSF(){
-  if(!sfReady||!sf)return;
-  thinking=true;
-  const elo=+gSlider.value;
-  sf.postMessage('ucinewgame');
+  if(!sf||!sfReady)return;
 
-  // Very low elo: random move sometimes
-  if(elo<900&&Math.random()<(1-elo/900)*0.65){
+  const elo=chosenElo;
+
+  // Very low elo: play random moves
+  if(elo<800&&Math.random()<(1-elo/800)*0.7){
     const mvs=game.moves();
     if(mvs.length){
       setTimeout(()=>{
         const m=game.move(mvs[Math.floor(Math.random()*mvs.length)]);
         if(m){lastMv={from:m.from,to:m.to};afterMove();}
-        thinking=false;
-      },150+Math.random()*400);
+      },300+Math.random()*500);
       return;
     }
   }
 
+  // Configure difficulty
+  sf.postMessage('ucinewgame');
+
   if(elo>=1320){
     sf.postMessage('setoption name UCI_LimitStrength value true');
-    sf.postMessage(`setoption name UCI_Elo value ${Math.min(elo,3190)}`);
+    sf.postMessage('setoption name UCI_Elo value '+Math.min(elo,3190));
   }else{
     sf.postMessage('setoption name UCI_LimitStrength value false');
-    sf.postMessage(`setoption name Skill Level value ${Math.round(elo/1320*8)}`);
+    sf.postMessage('setoption name Skill Level value '+Math.round(elo/1320*10));
   }
 
-  let base=300,vary=200;
-  if(elo<1000){base=150;vary=200;}
-  else if(elo<2000){base=500;vary=700;}
-  else if(elo<2800){base=900;vary=900;}
-  else{base=1500;vary=1000;}
-  const mt=Math.round(base+Math.random()*vary);
+  // Random movetime for human-like variation
+  let mt=500;
+  if(elo<1000)mt=200+Math.random()*400;
+  else if(elo<2000)mt=500+Math.random()*800;
+  else if(elo<2800)mt=1000+Math.random()*1000;
+  else mt=1500+Math.random()*1500;
 
-  sf.postMessage(`position fen ${game.fen()}`);
-  sf.postMessage(`go movetime ${mt}`);
+  sf.postMessage('position fen '+game.fen());
+  sf.postMessage('go movetime '+Math.round(mt));
 }
 
 function applyBot(uci){
-  const m=game.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci[4]||'q'});
+  const from=uci.slice(0,2),to=uci.slice(2,4),pr=uci[4]||'q';
+  const m=game.move({from,to,promotion:pr});
   if(m){lastMv={from:m.from,to:m.to};afterMove();}
 }
 
-// ===== GAME STATE =====
-let game=new Chess(),sel=null,targets=[],lastMv=null,flipped=false,thinking=false,gameOver=false;
+// ── START GAME ──
+document.getElementById('startBtn').onclick=function(){
+  const elo=+eSlider.value;
+  const t=getTier(elo);
+  document.getElementById('botLbl').textContent='ELO '+elo+' · '+t.label;
+  document.getElementById('hBadge').textContent='Memuat...';
+  document.getElementById('sel').classList.add('hidden');
+  document.getElementById('game').classList.remove('hidden');
+  waitChess(()=>{
+    game=new Chess();
+    sel=null;targets=[];lastMv=null;flipped=false;thinking=false;gameOver=false;
+    updateHistory();updateCaps();
+    renderBoard();
+    initSF(elo);
+  });
+};
 
-// ===== BOARD RENDER =====
-function sqSize(){
-  const w=document.getElementById('boardWrap');
-  const avW=w.offsetWidth||460;
-  const avH=window.innerHeight-220;
-  return Math.floor(Math.min(avW,avH,490)/8);
+function goBack(){
+  if(sf){sf.postMessage('stop');sf.terminate();sf=null;sfReady=false;}
+  closeMo('om');
+  document.getElementById('game').classList.add('hidden');
+  document.getElementById('sel').classList.remove('hidden');
 }
 
-function findKing(color){
+// ── GAME STATE ──
+let game,sel=null,targets=[],lastMv=null,flipped=false,thinking=false,gameOver=false;
+waitChess(()=>{game=new Chess();});
+
+// ── BOARD ──
+function sqSz(){
+  const el=document.getElementById('bw');
+  if(!el)return 52;
+  const avW=el.offsetWidth||460;
+  const avH=window.innerHeight-180;
+  return Math.floor(Math.min(avW,avH,490)/8);
+}
+function findKing(col){
   const b=game.board();
   for(let r=0;r<8;r++)for(let c=0;c<8;c++){
     const p=b[r][c];
-    if(p&&p.type==='k'&&p.color===color)return 'abcdefgh'[c]+(8-r);
+    if(p&&p.type==='k'&&p.color===col)return 'abcdefgh'[c]+(8-r);
   }
   return null;
 }
-
 function renderBoard(){
-  const wrap=document.getElementById('boardWrap');
-  if(!wrap)return;
-  const sz=sqSize();
+  const wrap=document.getElementById('bw');
+  if(!wrap||!game)return;
+  const sz=sqSz();
   const b=game.board();
   const inChk=game.in_check();
   const kSq=inChk?findKing(game.turn()):null;
-
-  let html='<div style="display:flex;gap:3px;align-items:flex-start;">';
-  // rank labels
-  html+='<div style="display:flex;flex-direction:column;">';
+  let h='<div style="display:flex;gap:3px;align-items:flex-start;">';
+  // ranks
+  h+='<div style="display:flex;flex-direction:column;">';
   for(let r=0;r<8;r++){
-    const rank=flipped?r+1:8-r;
-    html+=`<div style="width:14px;height:${sz}px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a8090;">${rank}</div>`;
+    const rk=flipped?r+1:8-r;
+    h+=`<div style="width:13px;height:${sz}px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a8090;">${rk}</div>`;
   }
-  html+='</div><div>';
-  // board grid
-  html+=`<div id="board" style="display:grid;grid-template-columns:repeat(8,${sz}px);grid-template-rows:repeat(8,${sz}px);">`;
+  h+='</div><div>';
+  h+=`<div style="display:grid;grid-template-columns:repeat(8,${sz}px);grid-template-rows:repeat(8,${sz}px);border:3px solid #111;border-radius:3px;overflow:hidden;box-shadow:0 12px 50px rgba(0,0,0,.8),0 0 0 1px rgba(201,168,76,.2);">`;
   for(let r=0;r<8;r++){
     for(let c=0;c<8;c++){
       const ar=flipped?7-r:r, ac=flipped?7-c:c;
@@ -502,42 +515,39 @@ function renderBoard(){
       const piece=b[ar][ac];
       const light=(ar+ac)%2===0;
       const isSel=sq===sel;
-      const isLastFrom=lastMv&&sq===lastMv.from&&!isSel;
-      const isLastTo=lastMv&&sq===lastMv.to&&!isSel;
+      const isLF=lastMv&&sq===lastMv.from&&!isSel;
+      const isLT=lastMv&&sq===lastMv.to&&!isSel;
       const isChk=sq===kSq;
       const isTgt=targets.includes(sq);
-      let cls='sq '+(light?'light':'dark');
+      let cls='sq '+(light?'lt':'dk');
       if(isSel)cls+=' sel';
-      if(isLastFrom)cls+=' lastfrom';
-      if(isLastTo)cls+=' lastto';
-      if(isChk)cls+=' incheck';
+      if(isLF)cls+=' lf';
+      if(isLT)cls+=' lt2';
+      if(isChk)cls+=' chk';
       if(isTgt)cls+=piece?' ring':' dot';
-      html+=`<div class="${cls}" style="width:${sz}px;height:${sz}px;" onclick="clickSq('${sq}')">`;
-      if(piece)html+=`<img src="${WIKI[piece.color+piece.type.toUpperCase()]}" alt="">`;
-      html+='</div>';
+      h+=`<div class="${cls}" style="width:${sz}px;height:${sz}px;" onclick="clickSq('${sq}')">`;
+      if(piece)h+=`<img src="${W[piece.color+piece.type.toUpperCase()]}" alt="">`;
+      h+='</div>';
     }
   }
-  html+='</div>';
-  // file labels
-  html+=`<div style="display:flex;">`;
+  h+='</div>';
+  // files
+  h+=`<div style="display:flex;">`;
   for(let c=0;c<8;c++){
     const ac=flipped?7-c:c;
-    html+=`<div style="width:${sz}px;height:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a8090;">${'abcdefgh'[ac]}</div>`;
+    h+=`<div style="width:${sz}px;height:13px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a8090;">${'abcdefgh'[ac]}</div>`;
   }
-  html+='</div></div></div>';
-  wrap.innerHTML=html;
+  h+='</div></div></div>';
+  wrap.innerHTML=h;
 }
 
-// ===== CLICK =====
+// ── CLICK ──
 function clickSq(sq){
   if(gameOver||thinking||game.turn()!=='w')return;
   const b=game.board();
   const ac=sq.charCodeAt(0)-97, ar=8-parseInt(sq[1]);
   const piece=b[ar][ac];
-
-  if(sel&&targets.includes(sq)){
-    doMove(sel,sq);return;
-  }
+  if(sel&&targets.includes(sq)){doMove(sel,sq);return;}
   if(piece&&piece.color==='w'){
     sel=sq;
     targets=game.moves({square:sq,verbose:true}).map(m=>m.to);
@@ -545,7 +555,6 @@ function clickSq(sq){
   }
   sel=null;targets=[];renderBoard();
 }
-
 function doMove(from,to){
   const b=game.board();
   const p=b[8-parseInt(from[1])][from.charCodeAt(0)-97];
@@ -555,125 +564,130 @@ function doMove(from,to){
   lastMv={from:m.from,to:m.to};sel=null;targets=[];afterMove();
 }
 
-// ===== PROMOTION =====
+// ── PROMOTION ──
 function showPromo(from,to){
-  const pp=document.getElementById('pPieces');
+  const pp=document.getElementById('pp');
   pp.innerHTML='';
   ['q','r','b','n'].forEach(t=>{
-    const div=document.createElement('div');
-    div.className='pp';
-    div.innerHTML=`<img src="${WIKI['w'+t.toUpperCase()]}">`;
-    div.onclick=()=>{
-      closeModal('promoModal');
+    const d=document.createElement('div');
+    d.className='ppc';
+    d.innerHTML=`<img src="${W['w'+t.toUpperCase()]}">`;
+    d.onclick=()=>{
+      closeMo('pm');
       const m=game.move({from,to,promotion:t});
       if(m){lastMv={from:m.from,to:m.to};sel=null;targets=[];afterMove();}
     };
-    pp.appendChild(div);
+    pp.appendChild(d);
   });
-  document.getElementById('promoModal').classList.add('show');
+  document.getElementById('pm').classList.add('show');
 }
 
-// ===== AFTER MOVE =====
+// ── AFTER MOVE ──
 function afterMove(){
+  if(!game)return;
   updateHistory();updateCaps();
   const cnt=game.history().length;
-  document.getElementById('mvCount').textContent=cnt?Math.ceil(cnt/2)+' langkah':'';
+  document.getElementById('mvc').textContent=cnt?Math.ceil(cnt/2)+' langkah':'';
   renderBoard();
-  if(game.game_over()){setTimeout(showOver,300);return;}
+  if(game.game_over()){setTimeout(showOver,250);return;}
   if(game.turn()==='b'){
-    setStatus('<span>Berpikir<span class="dot1">.</span><span class="dot2">.</span><span class="dot3">.</span></span>','gold',false);
-    setTimeout(askSF,80);
+    thinking=true;
+    setSt('<span>Berpikir<span class="d1">.</span><span class="d2">.</span><span class="d3">.</span></span>','o',false);
+    setTimeout(askSF,100);
   }else{
-    setStatus(game.in_check()?'⚡ Skak! Lindungi Rajamu':'Giliranmu',game.in_check()?'red':'green',false);
+    thinking=false;
+    setSt(game.in_check()?'⚡ Skak! Lindungi Rajamu':'Giliranmu',game.in_check()?'r':'g',false);
   }
 }
 
-// ===== STATUS =====
-function setStatus(html,dot,pulse){
-  document.getElementById('sLabel').innerHTML=html;
-  const d=document.getElementById('sDot');
-  d.className='sdot '+dot+(pulse?' pulse':'');
+// ── STATUS ──
+function setSt(html,dot,pulse){
+  document.getElementById('slbl').innerHTML=html;
+  const d=document.getElementById('dot');
+  d.className='sd '+dot+(pulse?' pulse':'');
 }
 
-// ===== HISTORY =====
+// ── HISTORY ──
 function updateHistory(){
+  if(!game)return;
   const h=game.history({verbose:true});
   let html='';
   for(let i=0;i<h.length;i+=2){
     const cw=i===h.length-1,cb=i+1===h.length-1;
-    html+=`<div class="mrow"><span class="mnum">${i/2+1}.</span><span class="mw${cw?' cur':''}">${h[i].san}</span>`;
-    html+=h[i+1]?`<span class="mb${cb?' cur':''}">${h[i+1].san}</span>`:'<span></span>';
+    html+=`<div class="mr"><span class="mn">${i/2+1}.</span><span class="mw${cw?' cur':''}">${h[i].san}</span>`;
+    html+=h[i+1]?`<span class="mb2${cb?' cur':''}">${h[i+1].san}</span>`:'<span></span>';
     html+='</div>';
   }
-  const ml=document.getElementById('moveList');
-  ml.innerHTML=html;ml.scrollTop=ml.scrollHeight;
+  const ml=document.getElementById('ml');
+  if(ml){ml.innerHTML=html;ml.parentElement.scrollTop=ml.parentElement.scrollHeight;}
 }
 
-// ===== CAPTURES =====
+// ── CAPTURES ──
 function updateCaps(){
+  if(!game)return;
   const h=game.history({verbose:true});
   const wc=[],bc=[];
   h.forEach(m=>{if(m.captured)(m.color==='w'?wc:bc).push(m.captured);});
   const ws=wc.reduce((a,p)=>a+(VALS[p]||0),0);
   const bs=bc.reduce((a,p)=>a+(VALS[p]||0),0);
-  function render(arr,col,el,my,opp){
-    let h=arr.sort((a,b)=>(VALS[b]||0)-(VALS[a]||0)).map(p=>`<span class="cap">${UNI[col+p.toUpperCase()]}</span>`).join('');
+  function rnd(arr,col,elId,my,opp){
+    const el=document.getElementById(elId);
+    if(!el)return;
+    let h=arr.sort((a,b)=>(VALS[b]||0)-(VALS[a]||0)).map(p=>`<span>${UNI[col+p.toUpperCase()]}</span>`).join('');
     if(my>opp)h+=`<span class="cadv">+${my-opp}</span>`;
-    document.getElementById(el).innerHTML=h;
+    el.innerHTML=h;
   }
-  render(wc,'b','wCaps',ws,bs);
-  render(bc,'w','bCaps',bs,ws);
+  rnd(wc,'b','wcp',ws,bs);
+  rnd(bc,'w','bcp',bs,ws);
 }
 
-// ===== GAME OVER =====
+// ── GAME OVER ──
 function showOver(){
-  gameOver=true;
+  gameOver=true;thinking=false;
   let icon='🤝',title='Seri!',sub='Pertandingan berakhir imbang.';
   if(game.in_checkmate()){
     if(game.turn()==='b'){icon='🏆';title='Kamu Menang!';sub='Bot terkena Skakmat. Luar biasa!';}
     else{icon='😞';title='Kamu Kalah';sub='Raja kamu terkena Skakmat. Coba lagi!';}
   }else if(game.in_stalemate()){icon='😮';title='Stalemate!';sub='Raja tidak bisa bergerak — seri.';}
-  else if(game.in_threefold_repetition()){icon='🔁';title='Seri — Repetisi!';sub='Posisi yang sama 3× — seri.';}
-  else if(game.insufficient_material()){icon='🤷';title='Seri — Material';sub='Tidak cukup bidak untuk skakmat.';}
-  document.getElementById('moIcon').textContent=icon;
-  document.getElementById('moTitle').textContent=title;
-  document.getElementById('moSub').textContent=sub;
-  document.getElementById('overModal').classList.add('show');
-  const dot=game.in_checkmate()&&game.turn()==='b'?'green':'red';
-  setStatus(title,game.in_checkmate()&&game.turn()==='b'?'green':'red',false);
+  else if(game.in_threefold_repetition()){icon='🔁';title='Seri!';sub='Posisi yang sama terulang 3×.';}
+  else if(game.insufficient_material()){icon='🤷';title='Seri!';sub='Material tidak cukup untuk skakmat.';}
+  document.getElementById('oi').textContent=icon;
+  document.getElementById('ot').textContent=title;
+  document.getElementById('os').textContent=sub;
+  document.getElementById('om').classList.add('show');
 }
 
-function closeModal(id){document.getElementById(id).classList.remove('show');}
+function closeMo(id){document.getElementById(id).classList.remove('show');}
 
-// ===== CONTROLS =====
+// ── CONTROLS ──
 function newGame(){
+  if(!game)return;
   if(sf)sf.postMessage('ucinewgame');
-  game=new Chess();sel=null;targets=[];lastMv=null;thinking=false;gameOver=false;
+  game.reset();
+  sel=null;targets=[];lastMv=null;thinking=false;gameOver=false;
   updateHistory();updateCaps();renderBoard();
-  document.getElementById('mvCount').textContent='';
-  if(sfReady)setStatus('Gililanmu — Putih memulai','green',false);
-  closeModal('overModal');
+  document.getElementById('mvc').textContent='';
+  setSt('Giliranmu — Putih memulai','g',false);
+  closeMo('om');
 }
-
 function flipBoard(){flipped=!flipped;renderBoard();}
-
 function undoMove(){
   if(thinking)return;
   game.undo();game.undo();
-  lastMv=null;sel=null;targets=[];gameOver=false;
+  lastMv=null;sel=null;targets=[];thinking=false;gameOver=false;
   updateHistory();updateCaps();renderBoard();
-  document.getElementById('mvCount').textContent=game.history().length?Math.ceil(game.history().length/2)+' langkah':'';
-  setStatus('Giliranmu','green',false);
+  const cnt=game.history().length;
+  document.getElementById('mvc').textContent=cnt?Math.ceil(cnt/2)+' langkah':'';
+  setSt('Giliranmu','g',false);
 }
-
 function resignGame(){
   if(gameOver)return;
-  gameOver=true;
-  document.getElementById('moIcon').textContent='🏳';
-  document.getElementById('moTitle').textContent='Kamu Menyerah';
-  document.getElementById('moSub').textContent='Tak apa — belajar dari kekalahan dan coba lagi!';
-  document.getElementById('overModal').classList.add('show');
-  setStatus('Kamu menyerah.','red',false);
+  gameOver=true;thinking=false;
+  document.getElementById('oi').textContent='🏳';
+  document.getElementById('ot').textContent='Kamu Menyerah';
+  document.getElementById('os').textContent='Tak apa — belajar dari kekalahan dan coba lagi!';
+  document.getElementById('om').classList.add('show');
+  setSt('Kamu menyerah.','r',false);
 }
 
 window.addEventListener('resize',renderBoard);
