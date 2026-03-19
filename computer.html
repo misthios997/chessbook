@@ -5,28 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 <title>Lawan Bot Stockfish</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Chess.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<!-- Stockfish as normal script (no Worker needed) -->
+<script src="https://cdn.jsdelivr.net/npm/stockfish@10.0.2/stockfish.js"></script>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:#0d0f12;color:#e8e4dc;overflow:hidden;}
 .screen{position:fixed;inset:0;overflow-y:auto;}
 .hidden{display:none!important;}
 
-/* SELECT */
+/* ── SELECT ── */
 #sel{background:#0d0f12;display:flex;align-items:center;justify-content:center;padding:20px;}
-.sc{width:100%;max-width:450px;display:flex;flex-direction:column;gap:18px;}
+.sc{width:100%;max-width:440px;display:flex;flex-direction:column;gap:18px;}
 .s-hero{text-align:center;}
 .s-icon{font-size:50px;display:block;margin-bottom:10px;}
 .s-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;background:linear-gradient(90deg,#c9a84c,#e8c96a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .s-sub{color:#7a8090;font-size:13px;margin-top:5px;}
-
 .ec{background:#13161b;border:1px solid #252932;border-radius:14px;padding:22px;}
 .et{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .en{font-family:'JetBrains Mono',monospace;font-size:42px;color:#e8c96a;line-height:1;}
-.eb{font-size:10px;padding:3px 12px;border-radius:100px;border:1px solid #c9a84c;color:#c9a84c;display:inline-block;margin-top:6px;}
+.eb{font-size:10px;padding:3px 12px;border-radius:100px;border:1px solid;display:inline-block;margin-top:6px;}
 input[type=range]{width:100%;-webkit-appearance:none;height:5px;border-radius:3px;outline:none;cursor:pointer;background:linear-gradient(to right,#c9a84c var(--p,47%),#252932 var(--p,47%));}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;background:#e8c96a;border:2px solid #0d0f12;box-shadow:0 2px 8px rgba(0,0,0,.5);}
 .em{display:flex;justify-content:space-between;margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#7a8090;}
-
 .plbl{font-size:10px;color:#7a8090;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
 .pg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .pb{background:#13161b;border:1px solid #252932;border-radius:9px;padding:10px 6px;cursor:pointer;text-align:center;transition:all .2s;color:#e8e4dc;font-family:'DM Sans',sans-serif;}
@@ -34,23 +38,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;heigh
 .pb-i{font-size:15px;display:block;margin-bottom:3px;}
 .pb-l{font-size:11px;font-weight:500;display:block;}
 .pb-e{font-family:'JetBrains Mono',monospace;font-size:10px;display:block;margin-top:2px;}
-
-.db{background:#13161b;border:1px solid #252932;border-radius:9px;padding:12px 15px;font-size:13px;color:#7a8090;line-height:1.6;min-height:56px;}
-
+.db{background:#13161b;border:1px solid #252932;border-radius:9px;padding:12px 15px;font-size:13px;color:#7a8090;line-height:1.6;min-height:54px;}
 .stbtn{width:100%;padding:17px;background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0d0f12;font-family:'Playfair Display',serif;font-size:18px;font-weight:900;border:none;border-radius:11px;cursor:pointer;transition:all .2s;}
-.stbtn:hover{filter:brightness(1.09);transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.4);}
+.stbtn:hover{filter:brightness(1.09);transform:translateY(-2px);}
 
-/* GAME */
+/* ── GAME ── */
 #game{background:#0d0f12;display:flex;flex-direction:column;}
 header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:#13161b;border-bottom:1px solid #252932;}
-.bk{display:flex;align-items:center;gap:7px;color:#7a8090;text-decoration:none;font-size:12.5px;padding:6px 12px;border:1px solid #252932;border-radius:7px;cursor:pointer;background:none;transition:all .2s;}
+.bk{color:#7a8090;font-size:12.5px;padding:6px 12px;border:1px solid #252932;border-radius:7px;cursor:pointer;background:none;transition:all .2s;}
 .bk:hover{color:#c9a84c;border-color:#c9a84c;}
 .ht{font-family:'Playfair Display',serif;font-size:16px;font-weight:900;background:linear-gradient(90deg,#c9a84c,#e8c96a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .hb{font-size:11px;padding:3px 10px;border-radius:100px;border:1px solid #252932;color:#7a8090;}
-
 .gb{flex:1;display:flex;overflow:hidden;}
-
-/* LEFT */
 .lp{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;gap:9px;min-width:0;}
 .sb{width:100%;max-width:490px;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:#13161b;border:1px solid #252932;border-radius:9px;}
 .sd{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
@@ -61,27 +60,22 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
 .pulse{animation:pulse 1s infinite;}
 #bw{width:100%;max-width:490px;}
-
-/* BOARD */
 .sq{position:relative;cursor:pointer;user-select:none;}
-.sq.lt{background:#f0d9b5;}
-.sq.dk{background:#b58863;}
+.sq.lt{background:#f0d9b5;}.sq.dk{background:#b58863;}
 .sq.sel{background:rgba(106,168,79,.88)!important;}
-.sq.lf,.sq.lt2{background:rgba(255,214,0,.4)!important;}
+.sq.lf{background:rgba(255,214,0,.4)!important;}
+.sq.lt2{background:rgba(255,214,0,.4)!important;}
 .sq.sel.lf,.sq.sel.lt2{background:rgba(106,168,79,.88)!important;}
 .sq.chk{background:rgba(192,57,43,.65)!important;}
 .sq img{width:100%;height:100%;display:block;pointer-events:none;-webkit-user-drag:none;}
 .sq.dot::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30%;height:30%;background:rgba(0,0,0,.22);border-radius:50%;pointer-events:none;z-index:1;}
 .sq.ring::after{content:'';position:absolute;inset:0;border:3.5px solid rgba(106,168,79,.85);pointer-events:none;z-index:1;}
-
-/* RIGHT */
 .rp{width:246px;flex-shrink:0;background:#13161b;border-left:1px solid #252932;display:flex;flex-direction:column;overflow:hidden;}
 .pt{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:1px solid #252932;}
 .pc{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
 .pc.w{background:#f0d9b5;border:1px solid rgba(0,0,0,.2);}
 .pc.b{background:#1a1a1a;border:1px solid rgba(255,255,255,.2);}
-.pn{font-size:13px;font-weight:500;}
-.ps{font-size:11px;color:#7a8090;}
+.pn{font-size:13px;font-weight:500;}.ps{font-size:11px;color:#7a8090;}
 .cp{padding:5px 13px;min-height:26px;display:flex;flex-wrap:wrap;gap:2px;align-items:center;border-bottom:1px solid #252932;}
 .cp span{font-size:14px;opacity:.75;}
 .cadv{font-family:'JetBrains Mono',monospace;font-size:11px;color:#c9a84c;margin-left:3px;}
@@ -104,8 +98,6 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 .mn{font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a8090;}
 .mw,.mb2{font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 4px;border-radius:4px;}
 .cur{background:rgba(201,168,76,.2);color:#e8c96a;}
-
-/* MODALS */
 .mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:900;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .mo.show{display:flex;}
 .mc{background:#13161b;border:1px solid #252932;border-radius:16px;padding:34px 40px;text-align:center;max-width:320px;width:90%;}
@@ -121,18 +113,16 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 .ppc{width:56px;height:56px;background:#1a1e25;border:2px solid #252932;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
 .ppc:hover{border-color:#c9a84c;transform:scale(1.07);}
 .ppc img{width:42px;height:42px;}
-
 @keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
 .d1{animation:blink 1.2s 0s infinite both;}
 .d2{animation:blink 1.2s .2s infinite both;}
 .d3{animation:blink 1.2s .4s infinite both;}
-
 @media(max-width:640px){.rp{display:none;}}
 </style>
 </head>
 <body>
 
-<!-- SCREEN 1: SELECT -->
+<!-- SCREEN 1: SELECT ELO -->
 <div class="screen" id="sel">
   <div class="sc">
     <div class="s-hero">
@@ -140,7 +130,6 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
       <div class="s-title">Pilih Level Bot</div>
       <div class="s-sub">Semakin tinggi ELO, semakin susah bot bermain</div>
     </div>
-
     <div class="ec">
       <div class="et">
         <div>
@@ -155,14 +144,11 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
       <input type="range" id="eSlider" min="1" max="3200" value="1500">
       <div class="em"><span>1</span><span>800</span><span>1600</span><span>2400</span><span>3200</span></div>
     </div>
-
     <div>
       <div class="plbl">Pilih Cepat</div>
       <div class="pg" id="pg"></div>
     </div>
-
     <div class="db" id="desc"></div>
-
     <button class="stbtn" id="startBtn">Mulai Bermain →</button>
   </div>
 </div>
@@ -174,7 +160,6 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
     <span class="ht">vs Stockfish</span>
     <span class="hb" id="hBadge">ELO 1500</span>
   </header>
-
   <div class="gb">
     <div class="lp">
       <div class="sb" style="max-width:490px;">
@@ -186,7 +171,6 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
       </div>
       <div id="bw" style="width:100%;max-width:490px;"></div>
     </div>
-
     <div class="rp">
       <div class="pt">
         <div class="pc b"></div>
@@ -202,9 +186,7 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
           <button class="btn bd" onclick="resignGame()">🏳 Menyerah</button>
         </div>
       </div>
-      <div class="rs" style="padding-bottom:7px;">
-        <div class="rst">Riwayat</div>
-      </div>
+      <div class="rs" style="padding-bottom:7px;"><div class="rst">Riwayat</div></div>
       <div class="mh"><div id="ml"></div></div>
       <div style="border-top:1px solid #252932;">
         <div class="cp" id="wcp"></div>
@@ -217,7 +199,7 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
   </div>
 </div>
 
-<!-- GAME OVER -->
+<!-- GAME OVER MODAL -->
 <div class="mo" id="om">
   <div class="mc">
     <div class="mi" id="oi"></div>
@@ -230,7 +212,7 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
   </div>
 </div>
 
-<!-- PROMOTION -->
+<!-- PROMOTION MODAL -->
 <div class="mo" id="pm">
   <div class="mc">
     <h3>Pilih Promosi Pion</h3>
@@ -246,15 +228,8 @@ document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefaul
 document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
 
-// ── CHESS.JS ──
-// Loaded from CDN above. Fallback inline-load if needed.
-function waitChess(cb){
-  if(typeof Chess!=='undefined')cb();
-  else setTimeout(()=>waitChess(cb),50);
-}
-
-// ── WIKI PIECES ──
-const W={
+// ── PIECES ──
+const PIX={
   wK:'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
   wQ:'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
   wR:'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
@@ -273,26 +248,25 @@ const VALS={p:1,n:3,b:3,r:5,q:9};
 
 // ── TIERS ──
 const TIERS=[
-  {max:400, label:'🐣 Pemula',    color:'#95a5a6', desc:'Bot sangat mudah dikalahkan. Cocok untuk baru belajar catur.'},
-  {max:800, label:'😊 Amatir',    color:'#5dade2', desc:'Bot sering blunder. Cocok jika sudah paham aturan dasar.'},
-  {max:1200,label:'⚔️ Klub',      color:'#27ae60', desc:'Setara pemain klub lokal. Sudah cukup berbahaya.'},
-  {max:1600,label:'📚 Menengah',  color:'#f39c12', desc:'Setara pemain turnamen amatir. Punya rencana yang jelas.'},
-  {max:2000,label:'🔥 Expert',    color:'#e67e22', desc:'Sangat kuat, hampir tanpa blunder. Butuh fokus penuh.'},
-  {max:2400,label:'🏅 CM',        color:'#c0392b', desc:'Level Candidate Master FIDE. Sangat sulit dikalahkan.'},
-  {max:2700,label:'👑 GM',        color:'#9b59b6', desc:'Level Grandmaster internasional. Hampir sempurna.'},
-  {max:3200,label:'🏆 Magnus',    color:'#c9a84c', desc:'Kekuatan penuh Stockfish. Hampir mustahil menang.'},
+  {max:400, label:'🐣 Pemula',   color:'#95a5a6', desc:'Bot sangat mudah dikalahkan. Cocok untuk yang baru belajar catur.'},
+  {max:800, label:'😊 Amatir',   color:'#5dade2', desc:'Bot sering blunder. Cocok jika sudah paham aturan dasar.'},
+  {max:1200,label:'⚔️ Klub',     color:'#27ae60', desc:'Setara pemain klub lokal. Sudah cukup berbahaya.'},
+  {max:1600,label:'📚 Menengah', color:'#f39c12', desc:'Setara pemain turnamen amatir. Punya rencana yang jelas.'},
+  {max:2000,label:'🔥 Expert',   color:'#e67e22', desc:'Sangat kuat, hampir tanpa blunder. Butuh fokus penuh.'},
+  {max:2400,label:'🏅 CM',       color:'#c0392b', desc:'Level Candidate Master FIDE. Sangat sulit dikalahkan.'},
+  {max:2700,label:'👑 GM',       color:'#9b59b6', desc:'Level Grandmaster internasional. Hampir sempurna.'},
+  {max:3200,label:'🏆 Magnus',   color:'#c9a84c', desc:'Kekuatan penuh Stockfish. Hampir mustahil menang.'},
 ];
 const PRESETS=[
-  {elo:100,  icon:'🐣',label:'Bayi'},
-  {elo:500,  icon:'😊',label:'Kasual'},
-  {elo:1000, icon:'⚔️',label:'Serius'},
-  {elo:1600, icon:'🔥',label:'Expert'},
-  {elo:2400, icon:'🏅',label:'Master'},
-  {elo:3200, icon:'🏆',label:'Magnus'},
+  {elo:100,icon:'🐣',label:'Bayi'},
+  {elo:500,icon:'😊',label:'Kasual'},
+  {elo:1000,icon:'⚔️',label:'Serius'},
+  {elo:1600,icon:'🔥',label:'Expert'},
+  {elo:2400,icon:'🏅',label:'Master'},
+  {elo:3200,icon:'🏆',label:'Magnus'},
 ];
-
 function getTier(v){return TIERS.find(t=>v<=t.max)||TIERS[TIERS.length-1];}
-function pct(v){return ((v-1)/3199*100).toFixed(1)+'%';}
+function pct(v){return((v-1)/3199*100).toFixed(1)+'%';}
 
 // ── SELECT SCREEN ──
 const eSlider=document.getElementById('eSlider');
@@ -309,7 +283,6 @@ eSlider.addEventListener('input',updSel);
 updSel();
 
 // Presets
-const pg=document.getElementById('pg');
 PRESETS.forEach(p=>{
   const t=getTier(p.elo);
   const btn=document.createElement('button');
@@ -318,171 +291,134 @@ PRESETS.forEach(p=>{
   btn.onmouseover=()=>{btn.style.borderColor=t.color;btn.style.transform='translateY(-2px)';};
   btn.onmouseout=()=>{btn.style.borderColor='#252932';btn.style.transform='none';};
   btn.onclick=()=>{eSlider.value=p.elo;updSel();};
-  pg.appendChild(btn);
+  document.getElementById('pg').appendChild(btn);
 });
 
 // ── STOCKFISH ENGINE ──
+// Uses STOCKFISH() factory from the <script> tag — no Worker, no CORS
 let sf=null, sfReady=false, chosenElo=1500;
 
 function initSF(elo){
   chosenElo=elo;
   sfReady=false;
-  if(sf){sf.terminate();sf=null;}
+  sf=null;
 
-  // Use Stockfish 16 lite WASM via CDN — most reliable for browser
-  const sfUrl='https://cdn.jsdelivr.net/npm/stockfish.wasm@0.10.0/stockfish.js';
-
-  function tryWorker(url, useBlob){
-    return new Promise((res,rej)=>{
-      let worker;
-      try{
-        if(useBlob){
-          fetch(url).then(r=>r.text()).then(txt=>{
-            try{
-              const blob=new Blob([txt],{type:'application/javascript'});
-              worker=new Worker(URL.createObjectURL(blob));
-              setupWorker(worker,res,rej);
-            }catch(e){rej(e);}
-          }).catch(rej);
-        }else{
-          worker=new Worker(url);
-          setupWorker(worker,res,rej);
-        }
-      }catch(e){rej(e);}
-    });
+  // STOCKFISH() is the factory exposed by stockfish.js when loaded as a script
+  if(typeof STOCKFISH==='function'){
+    try{
+      sf=STOCKFISH();
+      sf.onmessage=handleMsg;
+      sf.postMessage('uci');
+      sf.postMessage('isready');
+      return;
+    }catch(e){}
   }
 
-  function setupWorker(w,res,rej){
-    let ok=false;
-    const t=setTimeout(()=>{if(!ok)rej(new Error('timeout'));},5000);
-    w.onmessage=function(e){
-      if(!ok&&(e.data==='readyok'||String(e.data).includes('uciok'))){
-        ok=true;clearTimeout(t);res(w);
-      }
-    };
-    w.onerror=rej;
-    w.postMessage('uci');
-    w.postMessage('isready');
+  // Fallback: try as Worker
+  try{
+    sf=new Worker('https://cdn.jsdelivr.net/npm/stockfish@10.0.2/stockfish.js');
+    sf.onmessage=e=>handleMsg(e.data);
+    sf.postMessage('uci');
+    sf.postMessage('isready');
+  }catch(e){
+    setSt('Engine gagal dimuat','r',false);
   }
-
-  const urls=[
-    {url:'https://cdn.jsdelivr.net/npm/stockfish@10.0.2/stockfish.js',blob:true},
-    {url:'https://cdn.jsdelivr.net/npm/stockfish@10.0.2/stockfish.js',blob:false},
-    {url:'https://unpkg.com/stockfish@10.0.2/stockfish.js',blob:true},
-  ];
-
-  async function tryAll(){
-    for(const u of urls){
-      try{
-        const w=await tryWorker(u.url,u.blob);
-        sf=w;
-        sf.onmessage=onSFMsg;
-        sfReady=true;
-        document.getElementById('hBadge').textContent='ELO '+chosenElo;
-        document.getElementById('hBadge').style.color='#27ae60';
-        document.getElementById('hBadge').style.borderColor='#27ae60';
-        setSt('Gililanmu — Putih memulai','g',false);
-        return;
-      }catch(e){}
-    }
-    setSt('Engine gagal. Coba refresh.','r',false);
-  }
-
-  tryAll();
 }
 
-function onSFMsg(e){
-  const msg=String(e.data);
+function handleMsg(data){
+  const msg=String(data);
+  if(!sfReady&&(msg==='readyok'||msg.includes('uciok'))){
+    sfReady=true;
+    document.getElementById('hBadge').style.color='#27ae60';
+    document.getElementById('hBadge').style.borderColor='#27ae60';
+    setSt('Giliranmu — Putih memulai','g',false);
+  }
   if(msg.startsWith('bestmove')){
     const mv=msg.split(' ')[1];
-    if(mv&&mv!=='(none)'){
-      applyBot(mv);
-    }else{
-      // No move found — shouldn't happen, but handle
-    }
+    if(mv&&mv!=='(none)')applyBot(mv);
+    thinking=false;
   }
+}
+
+function send(cmd){
+  if(!sf)return;
+  // Supports both Worker (postMessage) and factory (postMessage identical API)
+  sf.postMessage(cmd);
 }
 
 function askSF(){
-  if(!sf||!sfReady)return;
-
+  if(!sf||!sfReady||!game)return;
   const elo=chosenElo;
 
-  // Very low elo: play random moves
+  // Very low elo → random move
   if(elo<800&&Math.random()<(1-elo/800)*0.7){
     const mvs=game.moves();
     if(mvs.length){
       setTimeout(()=>{
         const m=game.move(mvs[Math.floor(Math.random()*mvs.length)]);
         if(m){lastMv={from:m.from,to:m.to};afterMove();}
-      },300+Math.random()*500);
+        thinking=false;
+      },200+Math.random()*500);
       return;
     }
   }
 
-  // Configure difficulty
-  sf.postMessage('ucinewgame');
-
+  send('ucinewgame');
   if(elo>=1320){
-    sf.postMessage('setoption name UCI_LimitStrength value true');
-    sf.postMessage('setoption name UCI_Elo value '+Math.min(elo,3190));
+    send('setoption name UCI_LimitStrength value true');
+    send('setoption name UCI_Elo value '+Math.min(elo,3190));
   }else{
-    sf.postMessage('setoption name UCI_LimitStrength value false');
-    sf.postMessage('setoption name Skill Level value '+Math.round(elo/1320*10));
+    send('setoption name UCI_LimitStrength value false');
+    send('setoption name Skill Level value '+Math.round(elo/1320*10));
   }
 
-  // Random movetime for human-like variation
-  let mt=500;
-  if(elo<1000)mt=200+Math.random()*400;
-  else if(elo<2000)mt=500+Math.random()*800;
-  else if(elo<2800)mt=1000+Math.random()*1000;
-  else mt=1500+Math.random()*1500;
+  let mt=400;
+  if(elo<1000)mt=150+Math.random()*350;
+  else if(elo<2000)mt=400+Math.random()*700;
+  else if(elo<2800)mt=800+Math.random()*1000;
+  else mt=1200+Math.random()*1500;
 
-  sf.postMessage('position fen '+game.fen());
-  sf.postMessage('go movetime '+Math.round(mt));
+  send('position fen '+game.fen());
+  send('go movetime '+Math.round(mt));
 }
 
 function applyBot(uci){
-  const from=uci.slice(0,2),to=uci.slice(2,4),pr=uci[4]||'q';
-  const m=game.move({from,to,promotion:pr});
+  if(!game)return;
+  const m=game.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci[4]||'q'});
   if(m){lastMv={from:m.from,to:m.to};afterMove();}
 }
 
-// ── START GAME ──
+// ── START ──
 document.getElementById('startBtn').onclick=function(){
   const elo=+eSlider.value;
   const t=getTier(elo);
   document.getElementById('botLbl').textContent='ELO '+elo+' · '+t.label;
-  document.getElementById('hBadge').textContent='Memuat...';
+  document.getElementById('hBadge').textContent='ELO '+elo;
   document.getElementById('sel').classList.add('hidden');
   document.getElementById('game').classList.remove('hidden');
-  waitChess(()=>{
-    game=new Chess();
-    sel=null;targets=[];lastMv=null;flipped=false;thinking=false;gameOver=false;
-    updateHistory();updateCaps();
-    renderBoard();
-    initSF(elo);
-  });
+  game=new Chess();
+  sel=null;targets=[];lastMv=null;flipped=false;thinking=false;gameOver=false;
+  updateHistory();updateCaps();renderBoard();
+  setSt('Memuat engine...','gr',true);
+  initSF(elo);
 };
 
 function goBack(){
-  if(sf){sf.postMessage('stop');sf.terminate();sf=null;sfReady=false;}
+  if(sf&&sf.terminate)sf.terminate();
+  sf=null;sfReady=false;
   closeMo('om');
   document.getElementById('game').classList.add('hidden');
   document.getElementById('sel').classList.remove('hidden');
 }
 
 // ── GAME STATE ──
-let game,sel=null,targets=[],lastMv=null,flipped=false,thinking=false,gameOver=false;
-waitChess(()=>{game=new Chess();});
+let game=null,sel=null,targets=[],lastMv=null,flipped=false,thinking=false,gameOver=false;
 
 // ── BOARD ──
 function sqSz(){
   const el=document.getElementById('bw');
   if(!el)return 52;
-  const avW=el.offsetWidth||460;
-  const avH=window.innerHeight-180;
-  return Math.floor(Math.min(avW,avH,490)/8);
+  return Math.floor(Math.min(el.offsetWidth||460,window.innerHeight-180,490)/8);
 }
 function findKing(col){
   const b=game.board();
@@ -497,10 +433,8 @@ function renderBoard(){
   if(!wrap||!game)return;
   const sz=sqSz();
   const b=game.board();
-  const inChk=game.in_check();
-  const kSq=inChk?findKing(game.turn()):null;
+  const kSq=game.in_check()?findKing(game.turn()):null;
   let h='<div style="display:flex;gap:3px;align-items:flex-start;">';
-  // ranks
   h+='<div style="display:flex;flex-direction:column;">';
   for(let r=0;r<8;r++){
     const rk=flipped?r+1:8-r;
@@ -510,8 +444,8 @@ function renderBoard(){
   h+=`<div style="display:grid;grid-template-columns:repeat(8,${sz}px);grid-template-rows:repeat(8,${sz}px);border:3px solid #111;border-radius:3px;overflow:hidden;box-shadow:0 12px 50px rgba(0,0,0,.8),0 0 0 1px rgba(201,168,76,.2);">`;
   for(let r=0;r<8;r++){
     for(let c=0;c<8;c++){
-      const ar=flipped?7-r:r, ac=flipped?7-c:c;
-      const file='abcdefgh'[ac], rank=8-ar, sq=file+rank;
+      const ar=flipped?7-r:r,ac=flipped?7-c:c;
+      const file='abcdefgh'[ac],rank=8-ar,sq=file+rank;
       const piece=b[ar][ac];
       const light=(ar+ac)%2===0;
       const isSel=sq===sel;
@@ -526,13 +460,11 @@ function renderBoard(){
       if(isChk)cls+=' chk';
       if(isTgt)cls+=piece?' ring':' dot';
       h+=`<div class="${cls}" style="width:${sz}px;height:${sz}px;" onclick="clickSq('${sq}')">`;
-      if(piece)h+=`<img src="${W[piece.color+piece.type.toUpperCase()]}" alt="">`;
+      if(piece)h+=`<img src="${PIX[piece.color+piece.type.toUpperCase()]}" alt="">`;
       h+='</div>';
     }
   }
-  h+='</div>';
-  // files
-  h+=`<div style="display:flex;">`;
+  h+='</div><div style="display:flex;">';
   for(let c=0;c<8;c++){
     const ac=flipped?7-c:c;
     h+=`<div style="width:${sz}px;height:13px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a8090;">${'abcdefgh'[ac]}</div>`;
@@ -545,13 +477,11 @@ function renderBoard(){
 function clickSq(sq){
   if(gameOver||thinking||game.turn()!=='w')return;
   const b=game.board();
-  const ac=sq.charCodeAt(0)-97, ar=8-parseInt(sq[1]);
+  const ac=sq.charCodeAt(0)-97,ar=8-parseInt(sq[1]);
   const piece=b[ar][ac];
   if(sel&&targets.includes(sq)){doMove(sel,sq);return;}
   if(piece&&piece.color==='w'){
-    sel=sq;
-    targets=game.moves({square:sq,verbose:true}).map(m=>m.to);
-    renderBoard();return;
+    sel=sq;targets=game.moves({square:sq,verbose:true}).map(m=>m.to);renderBoard();return;
   }
   sel=null;targets=[];renderBoard();
 }
@@ -566,12 +496,10 @@ function doMove(from,to){
 
 // ── PROMOTION ──
 function showPromo(from,to){
-  const pp=document.getElementById('pp');
-  pp.innerHTML='';
+  const pp=document.getElementById('pp');pp.innerHTML='';
   ['q','r','b','n'].forEach(t=>{
-    const d=document.createElement('div');
-    d.className='ppc';
-    d.innerHTML=`<img src="${W['w'+t.toUpperCase()]}">`;
+    const d=document.createElement('div');d.className='ppc';
+    d.innerHTML=`<img src="${PIX['w'+t.toUpperCase()]}">`;
     d.onclick=()=>{
       closeMo('pm');
       const m=game.move({from,to,promotion:t});
@@ -584,7 +512,6 @@ function showPromo(from,to){
 
 // ── AFTER MOVE ──
 function afterMove(){
-  if(!game)return;
   updateHistory();updateCaps();
   const cnt=game.history().length;
   document.getElementById('mvc').textContent=cnt?Math.ceil(cnt/2)+' langkah':'';
@@ -631,14 +558,12 @@ function updateCaps(){
   const ws=wc.reduce((a,p)=>a+(VALS[p]||0),0);
   const bs=bc.reduce((a,p)=>a+(VALS[p]||0),0);
   function rnd(arr,col,elId,my,opp){
-    const el=document.getElementById(elId);
-    if(!el)return;
+    const el=document.getElementById(elId);if(!el)return;
     let h=arr.sort((a,b)=>(VALS[b]||0)-(VALS[a]||0)).map(p=>`<span>${UNI[col+p.toUpperCase()]}</span>`).join('');
     if(my>opp)h+=`<span class="cadv">+${my-opp}</span>`;
     el.innerHTML=h;
   }
-  rnd(wc,'b','wcp',ws,bs);
-  rnd(bc,'w','bcp',bs,ws);
+  rnd(wc,'b','wcp',ws,bs);rnd(bc,'w','bcp',bs,ws);
 }
 
 // ── GAME OVER ──
@@ -656,18 +581,16 @@ function showOver(){
   document.getElementById('os').textContent=sub;
   document.getElementById('om').classList.add('show');
 }
-
 function closeMo(id){document.getElementById(id).classList.remove('show');}
 
 // ── CONTROLS ──
 function newGame(){
   if(!game)return;
-  if(sf)sf.postMessage('ucinewgame');
-  game.reset();
-  sel=null;targets=[];lastMv=null;thinking=false;gameOver=false;
+  send('ucinewgame');
+  game.reset();sel=null;targets=[];lastMv=null;thinking=false;gameOver=false;
   updateHistory();updateCaps();renderBoard();
   document.getElementById('mvc').textContent='';
-  setSt('Giliranmu — Putih memulai','g',false);
+  setSt(sfReady?'Giliranmu — Putih memulai':'Memuat engine...',sfReady?'g':'gr',!sfReady);
   closeMo('om');
 }
 function flipBoard(){flipped=!flipped;renderBoard();}
@@ -685,11 +608,10 @@ function resignGame(){
   gameOver=true;thinking=false;
   document.getElementById('oi').textContent='🏳';
   document.getElementById('ot').textContent='Kamu Menyerah';
-  document.getElementById('os').textContent='Tak apa — belajar dari kekalahan dan coba lagi!';
+  document.getElementById('os').textContent='Tak apa — belajar dari kekalahan!';
   document.getElementById('om').classList.add('show');
   setSt('Kamu menyerah.','r',false);
 }
-
 window.addEventListener('resize',renderBoard);
 </script>
 </body>
